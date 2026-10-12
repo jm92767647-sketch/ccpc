@@ -1,7 +1,0 @@
-.collection-switch{display:flex;align-items:center;gap:12px;white-space:nowrap}
-.collection-switch .collection-link{font-size:12px;font-weight:650;letter-spacing:.16em;opacity:.45}
-.collection-switch [aria-current=page]{opacity:1}
-.collection-switch .collection-link:hover{opacity:1}
-.collection-switch .collection-divider{color:var(--muted);font-size:10px}
-@media(max-width:1000px){.collection-switch{flex-direction:column;align-items:flex-start;gap:5px}.collection-switch .collection-divider{display:none}}
-@media(max-width:700px){.collection-switch .collection-link{font-size:9px}}
