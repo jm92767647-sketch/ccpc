@@ -1,3 +1,11 @@
-/* Soft aurora: keep the collection unobstructed and put color at the edges. */
-body{background:radial-gradient(ellipse at 0% 8%,#cfe8e780 0,transparent 47%),radial-gradient(ellipse at 100% 0%,#d4e3ef99 0,transparent 43%),radial-gradient(ellipse at 100% 100%,#dedbf380 0,transparent 46%),radial-gradient(ellipse at 0% 100%,#d7e7ee66 0,transparent 42%),#fafbfd}
+/* Match option 03: a white centre, mint corners, blue side light and lavender below. */
+body{background:
+radial-gradient(ellipse 40% 30% at 100% 100%,#cddff9 0%,#cddff900 100%),
+radial-gradient(ellipse 44% 50% at 90% 78%,#e8e2fc 0%,#e8e2fc00 100%),
+radial-gradient(ellipse 45% 45% at 0% 100%,#cdeae9 0%,#cdeae900 100%),
+radial-gradient(ellipse 33% 48% at 0% 50%,#deebfc 0%,#deebfc00 100%),
+radial-gradient(ellipse 50% 65% at 100% 0%,#cde8ef 0%,#cde8ef00 100%),
+radial-gradient(ellipse 32% 30% at 50% 0%,#f6f3fe 0%,#f6f3fe00 100%),
+radial-gradient(ellipse 42% 48% at 0% 0%,#d8eeec 0%,#d8eeec00 100%),
+#fdfdff}
 .ambient-bubbles{display:none}
