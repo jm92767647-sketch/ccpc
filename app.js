@@ -1,7 +1,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const mobile=matchMedia('(max-width:760px)');
+const mobile=matchMedia('(max-width:1000px)');
 const metrics=new Map(), memories={daily:{level:0,index:0,selected:null},fountain:{level:0,index:0,selected:null}};
-for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:window.PEN_LENGTHS[id].scale});
+for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:art.posted?1:.85});
 const brands=[['그라폰 파버카스텔','GvFC'],['도미넌트 인더스트리','DI'],['페리스 휠 프레스','FWP'],['나미키(파이롯트)','NMK'],['나카야 (플래티넘)','NKY'],['파버카스텔','FC'],['디플로마트','DPL'],['몬테그라파','MG'],['까렌다쉬','CdA'],['레오나르도','LD'],['비스콘티','VS'],['트위스비','TWSBI'],['파이롯트','PLT'],['ST 듀퐁','STD'],['몽블랑','MB'],['펠리칸','PE'],['발트만','WD'],['라미','LAMY'],['파카','PK'],['워터맨','WM'],['오노토','ON'],['쉐퍼','SH'],['크로스','CR'],['오로라','AU'],['구오마스','OMAS'],['세일러','SL'],['카웨코','KW'],['나왈','NW'],['아스바인','ASV'],['제브라','ZB'],['유니','UNI'],['로트링','RT'],['펜텔','PNT']];
 function brandOf(p){return brands.find(([name])=>p.name.startsWith(name))||['',''];}
 function displayName(p){
@@ -43,7 +43,7 @@ function select(id){
  remember();
 }
 function penCard(p,tag,span){
- const el=document.createElement('button');el.className='pen';el.dataset.id=p.id;el.dataset.state=window.PEN_LENGTHS[p.id].state;el.title=p.name;el.setAttribute('aria-label',p.name);el.setAttribute('aria-pressed',String(selected===p.id));
+ const el=document.createElement('button');el.className='pen';el.dataset.id=p.id;el.title=p.name;el.setAttribute('aria-label',p.name);el.setAttribute('aria-pressed',String(selected===p.id));
  if(selected===p.id)el.classList.add('selected');
  const heading=document.createElement('span');heading.className='tag';heading.textContent=level<=1&&tag==='Wood / Sterling Silver / Demonstrator'?'Wood / Silver / Demonstrator':tag;heading.title=tag;heading.dataset.span=span;
  const art=document.createElement('span');art.className='pen-art';
@@ -75,7 +75,7 @@ function preferredWidth(card){
 function fit(){
  const rows=$$('.display-row');if(!rows.length)return;
  const availableHeight=viewport.clientHeight-8,availableWidth=viewport.clientWidth-12;
- const gap=mobile.matches?8:level===0?7:9,tagHeight=level===3?0:mobile.matches?26:20;
+ const gap=mobile.matches?24:level===0?21:27,tagHeight=level===3?0:mobile.matches?40:28;
  scene.style.setProperty('--card-gap',gap+'px');scene.style.setProperty('--tag-height',tagHeight+'px');
  scene.style.setProperty('--label-height','140px');
  const labelHeight=()=>Math.ceil(Math.max(...$$('.label').map(label=>label.getBoundingClientRect().height)));
@@ -88,11 +88,11 @@ function fit(){
   }
   const labels=labelHeight(),cardWidth=(availableWidth-gap*(columns-1))/columns;
   art=Math.max(24,(availableHeight-tagHeight-labels-4)*[.50,.67,.84,1][level]);
-  for(const card of $$('.pen')){const m=cardMetric(card);art=Math.min(art,(cardWidth-12)/(m.ratio*m.scale));}
+  for(const card of $$('.pen')){const m=cardMetric(card);art=Math.min(art,16+(cardWidth-18)/(m.ratio*m.scale));}
   scene.style.setProperty('--label-height',labels+'px');scene.style.setProperty('--rows','1');
  }else{
   const count=level===0?visualRows().length:level===1?2:1;
-  const rowHeight=(availableHeight-8*(count-1))/count;
+  const rowHeight=(availableHeight-24*(count-1))/count;
   const plans=rows.map(row=>{
    const slots=row.querySelector('.slots'),cards=[...slots.children],wanted=cards.map(preferredWidth);
    const budget=availableWidth-gap*(cards.length-1),factor=Math.min(1,budget/wanted.reduce((n,w)=>n+w,0));
@@ -101,7 +101,7 @@ function fit(){
   function applyWidths(height){
    let fits=true;
    for(const plan of plans){
-    const widths=plan.cards.map((card,i)=>{const m=cardMetric(card);return Math.max(plan.minimum[i],height*m.ratio*m.scale+12);});
+    const widths=plan.cards.map((card,i)=>{const m=cardMetric(card);return Math.max(plan.minimum[i],Math.max(0,height-16)*m.ratio*m.scale+18);});
     const total=widths.reduce((n,w)=>n+w,0)+gap*(widths.length-1);
     if(total>availableWidth+.5)fits=false;
     plan.slots.style.width=total+'px';plan.slots.style.gridTemplateColumns=widths.map(w=>w+'px').join(' ');
@@ -122,7 +122,11 @@ function fit(){
  scene.style.setProperty('--art-height',art+'px');
  for(const card of $$('.pen')){
   const m=cardMetric(card);card.style.setProperty('--length',m.scale);
-  const image=card.querySelector('.pen-image');if(image)image.sizes=Math.ceil(art*m.scale*m.ratio)+'px';
+  const image=card.querySelector('.pen-image');if(image){
+   const height=Math.max(1,art-16)*m.scale;
+   image.style.height=height+'px';image.style.width=height*m.ratio+'px';
+   image.sizes=Math.ceil(height*m.ratio)+'px';
+  }
  }
 }
 function render(){
