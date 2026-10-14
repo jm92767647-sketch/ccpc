@@ -77,9 +77,12 @@ function preferredWidth(card){
 function fit(){
  const rows=$$('.display-row');if(!rows.length)return;
  const availableHeight=viewport.clientHeight-8,availableWidth=viewport.clientWidth-12;
- const gap=mobile.matches?24:level===0?21:27,tagHeight=level===3?0:mobile.matches?40:28;
+ const gap=level===0?8:mobile.matches?24:27,tagHeight=level===3?0:mobile.matches?40:level===0?20:28;
+ const rowGap=level===0?10:mobile.matches?42:24;
  const countryHeight=section==='fountain'&&sort==='brand'?22:0;
  scene.style.setProperty('--card-gap',gap+'px');scene.style.setProperty('--tag-height',tagHeight+'px');
+ scene.style.gap=rowGap+'px';
+ scene.style.setProperty('--grid-row-gap',level===0?'10px':'24px');
  scene.style.setProperty('--label-height','140px');
  const labelHeight=()=>Math.ceil(Math.max(...$$('.label').map(label=>label.getBoundingClientRect().height)));
  let art;
@@ -90,12 +93,12 @@ function fit(){
    for(const card of slots.children){card.style.width='';card.style.setProperty('--tag-width','100%');}
   }
   const labels=labelHeight(),cardWidth=(availableWidth-gap*(columns-1))/columns;
-  art=Math.max(24,(availableHeight-countryHeight-tagHeight-labels-4)*[.50,.67,.84,1][level]);
+  art=Math.max(24,(availableHeight-countryHeight-tagHeight-labels-4)*[.62,.67,.84,1][level]);
   for(const card of $$('.pen')){const m=cardMetric(card);art=Math.min(art,16+(cardWidth-18)/(m.ratio*m.scale));}
   scene.style.setProperty('--label-height',labels+'px');scene.style.setProperty('--rows','1');
  }else{
   const count=level===0?visualRows().length:level===1?2:1;
-  const rowHeight=(availableHeight-24*(count-1))/count-countryHeight;
+  const rowHeight=(availableHeight-rowGap*(count-1))/count-countryHeight;
   const plans=rows.map(row=>{
    const slots=row.querySelector('.slots'),cards=[...slots.children],wanted=cards.map(preferredWidth);
    const budget=availableWidth-gap*(cards.length-1),factor=Math.min(1,budget/wanted.reduce((n,w)=>n+w,0));
@@ -107,14 +110,16 @@ function fit(){
     const widths=plan.cards.map((card,i)=>{const m=cardMetric(card);return Math.max(plan.minimum[i],Math.max(0,height-16)*m.ratio*m.scale+18);});
     const total=widths.reduce((n,w)=>n+w,0)+gap*(widths.length-1);
     if(total>availableWidth+.5)fits=false;
-    plan.slots.style.width=total+'px';plan.slots.style.gridTemplateColumns=widths.map(w=>w+'px').join(' ');
-    plan.slots.parentElement.style.setProperty('--row-width',total+'px');
+    const extra=level===0?Math.max(0,availableWidth-total)/widths.length:0;
+    for(let i=0;i<widths.length;i++)widths[i]+=extra;
+    const rowWidth=total+extra*widths.length;
+    plan.slots.style.width=rowWidth+'px';plan.slots.style.gridTemplateColumns=widths.map(w=>w+'px').join(' ');
+    plan.slots.parentElement.style.setProperty('--row-width',rowWidth+'px');
     plan.cards.forEach((card,i)=>{card.style.width='';const span=Number(card.querySelector('.tag').dataset.span);card.style.setProperty('--tag-width',widths.slice(i,i+span).reduce((n,w)=>n+w,0)+gap*(span-1)+'px');});
    }
    return fits;
   }
   let low=0,high=Math.max(24,rowHeight-tagHeight-18);
-  if(level===0&&section==='daily')high*=.78;
   if(level===2)high*=.86;
   for(let i=0;i<16;i++){
    const height=(low+high)/2,fits=applyWidths(height);

@@ -43,7 +43,7 @@ footer{height:40px;display:flex;align-items:center;justify-content:center;color:
  nav{gap:0}nav button{font-size:10px;padding:4px 5px;min-height:25px}
  #classification{height:25px}#classification button{font-size:10px;margin-right:14px}
  #scene{height:auto;display:flex;flex-direction:column;gap:42px}.display-row{display:block}
- .slots{width:100%!important;display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr))!important;gap:24px var(--card-gap)}
+ .slots{width:100%!important;display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr))!important;gap:var(--grid-row-gap,24px) var(--card-gap)}
  .tag{font-size:8px;line-height:11px;overflow-wrap:anywhere}
  body[data-level="1"] .tag{font-size:9px;line-height:11px}body[data-level="1"] .label{font-size:9px;line-height:12px}
  body[data-level="2"] .tag{font-size:10px;line-height:12px}
