@@ -4,6 +4,7 @@ const metrics=new Map(), memories={daily:{level:0,index:0,selected:null},fountai
 for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:art.posted?1:.85});
 const brands=[['그라폰 파버카스텔','GvFC'],['도미넌트 인더스트리','DI'],['페리스 휠 프레스','FWP'],['나미키(파이롯트)','NMK'],['나카야 (플래티넘)','NKY'],['파버카스텔','FC'],['디플로마트','DPL'],['몬테그라파','MG'],['까렌다쉬','CdA'],['레오나르도','LD'],['비스콘티','VS'],['트위스비','TWSBI'],['파이롯트','PLT'],['ST 듀퐁','STD'],['몽블랑','MB'],['펠리칸','PE'],['발트만','WD'],['라미','LAMY'],['파카','PK'],['워터맨','WM'],['오노토','ON'],['쉐퍼','SH'],['크로스','CR'],['오로라','AU'],['구오마스','OMAS'],['세일러','SL'],['카웨코','KW'],['나왈','NW'],['아스바인','ASV'],['제브라','ZB'],['유니','UNI'],['로트링','RT'],['펜텔','PNT']];
 function brandOf(p){return brands.find(([name])=>p.name.startsWith(name))||['',''];}
+function brandLabel(p){const name=brandOf(p)[0];return level===3?name:name.replace(/\s*\([^)]*\)/g,'');}
 function displayName(p){
  if(level===3)return p.name;
  const [brand,short]=brandOf(p);
@@ -18,14 +19,14 @@ function visualRows(){
  const pens=PENS.filter(p=>p.section===section).sort((a,b)=>section==='fountain'&&sort==='style'?a.styleOrder-b.styleOrder:a.order-b.order);
  const groups=[];
  for(const p of pens){
-  const key=section==='daily'?(p.order<6?'Ballpoint Pen':p.order<9?'Multi Pen':'Mechanical Pencil'):sort==='brand'?p.group:['Wood','Sterling Silver','Demon'].includes(p.style)?'Wood / Sterling Silver / Demonstrator':p.style;
+  const key=section==='daily'?(p.order<6?'Ballpoint Pen':p.order<9?'Multi Pen':'Mechanical Pencil'):sort==='brand'?p.group:p.style==='Demon'?'Demonstrator':p.style;
   if(groups.at(-1)?.name!==key)groups.push({name:key,pens:[]});
   groups.at(-1).pens.push(p);
  }
  let paired;
  if(section==='daily')paired=[groups.slice(0,2),groups.slice(2)];
  else if(sort==='brand')paired=groups.map(g=>[g]);
- else paired=[['Classic','Stripe'],['Colored','Marble'],['Wood / Sterling Silver / Demonstrator','Modern Nib'],['Oriental','Holy']].map(names=>names.map(n=>groups.find(g=>g.name===n)).filter(Boolean));
+ else paired=[['Classic','Stripe'],['Colored','Marble'],['Wood','Sterling Silver','Demonstrator','Modern Nib'],['Oriental','Holy']].map(names=>names.map(n=>groups.find(g=>g.name===n)).filter(Boolean));
  return paired.filter(gs=>gs.length).map(gs=>({groups:gs,pens:gs.flatMap(g=>g.pens),name:gs.map(g=>g.name).join(' · ')}));
 }
 function pages(){
@@ -59,7 +60,8 @@ function makeRow(row){
  const slots=document.createElement('div');slots.className='slots';
  if(section==='fountain'&&sort==='brand'){
   let previous='';
-  row.pens.forEach((p,i)=>{const brand=brandOf(p)[0];let span=1;while(i+span<row.pens.length&&brandOf(row.pens[i+span])[0]===brand)span++;slots.append(penCard(p,brand!==previous?brand:'',brand!==previous?span:1));previous=brand;});
+  const country=document.createElement('h2');country.className='country';country.textContent=row.name==='Italian + French'?'Italian (+ French)':row.name;el.append(country);
+  row.pens.forEach((p,i)=>{const brand=brandLabel(p);let span=1;while(i+span<row.pens.length&&brandLabel(row.pens[i+span])===brand)span++;slots.append(penCard(p,brand!==previous?brand:'',brand!==previous?span:1));previous=brand;});
  }else for(const g of row.groups)g.pens.forEach((p,i)=>slots.append(penCard(p,i===0?g.name:'',i===0?g.pens.length:1)));
  el.append(slots);return el;
 }
@@ -76,6 +78,7 @@ function fit(){
  const rows=$$('.display-row');if(!rows.length)return;
  const availableHeight=viewport.clientHeight-8,availableWidth=viewport.clientWidth-12;
  const gap=mobile.matches?24:level===0?21:27,tagHeight=level===3?0:mobile.matches?40:28;
+ const countryHeight=section==='fountain'&&sort==='brand'?22:0;
  scene.style.setProperty('--card-gap',gap+'px');scene.style.setProperty('--tag-height',tagHeight+'px');
  scene.style.setProperty('--label-height','140px');
  const labelHeight=()=>Math.ceil(Math.max(...$$('.label').map(label=>label.getBoundingClientRect().height)));
@@ -83,16 +86,16 @@ function fit(){
  if(mobile.matches){
   const columns=[4,3,2,1][level];scene.style.setProperty('--columns',columns);
   for(const row of rows){
-   const slots=row.querySelector('.slots');slots.style.width='';slots.style.gridTemplateColumns='';
+   const slots=row.querySelector('.slots');slots.style.width='';slots.style.gridTemplateColumns='';row.style.setProperty('--row-width','100%');
    for(const card of slots.children){card.style.width='';card.style.setProperty('--tag-width','100%');}
   }
   const labels=labelHeight(),cardWidth=(availableWidth-gap*(columns-1))/columns;
-  art=Math.max(24,(availableHeight-tagHeight-labels-4)*[.50,.67,.84,1][level]);
+  art=Math.max(24,(availableHeight-countryHeight-tagHeight-labels-4)*[.50,.67,.84,1][level]);
   for(const card of $$('.pen')){const m=cardMetric(card);art=Math.min(art,16+(cardWidth-18)/(m.ratio*m.scale));}
   scene.style.setProperty('--label-height',labels+'px');scene.style.setProperty('--rows','1');
  }else{
   const count=level===0?visualRows().length:level===1?2:1;
-  const rowHeight=(availableHeight-24*(count-1))/count;
+  const rowHeight=(availableHeight-24*(count-1))/count-countryHeight;
   const plans=rows.map(row=>{
    const slots=row.querySelector('.slots'),cards=[...slots.children],wanted=cards.map(preferredWidth);
    const budget=availableWidth-gap*(cards.length-1),factor=Math.min(1,budget/wanted.reduce((n,w)=>n+w,0));
@@ -105,6 +108,7 @@ function fit(){
     const total=widths.reduce((n,w)=>n+w,0)+gap*(widths.length-1);
     if(total>availableWidth+.5)fits=false;
     plan.slots.style.width=total+'px';plan.slots.style.gridTemplateColumns=widths.map(w=>w+'px').join(' ');
+    plan.slots.parentElement.style.setProperty('--row-width',total+'px');
     plan.cards.forEach((card,i)=>{card.style.width='';const span=Number(card.querySelector('.tag').dataset.span);card.style.setProperty('--tag-width',widths.slice(i,i+span).reduce((n,w)=>n+w,0)+gap*(span-1)+'px');});
    }
    return fits;
@@ -195,4 +199,28 @@ addEventListener('hashchange',()=>changeSection(location.hash==='#fountain'?'fou
 new ResizeObserver(scheduleFit).observe(viewport);
 mobile.addEventListener('change',scheduleFit);
 document.fonts?.ready.then(scheduleFit);
+function numberCountry(p){
+ if(p.section==='fountain')return p.group==='Italian + French'?(p.name.startsWith('ST 듀퐁')?'French':'Italian'):p.group;
+ const brand=brandOf(p)[0];
+ if(['몽블랑','그라폰 파버카스텔','파버카스텔','라미','로트링'].includes(brand))return 'German';
+ if(['크로스','파카'].includes(brand))return 'Anglosphere';
+ if(brand==='비스콘티')return 'Italian';if(brand==='까렌다쉬')return 'Swiss';return 'Asian';
+}
+function showNumbers(){
+ const pens=PENS.filter(p=>p.section===section),content=$('#number-content');content.replaceChildren();
+ const intro=document.createElement('p');intro.className='number-total';intro.textContent=(section==='daily'?'Multi Pen & Pencil':'Fountain Pen')+' · '+pens.length;content.append(intro);
+ function table(title,entries){
+  const heading=document.createElement('h3');heading.textContent=title;const list=document.createElement('dl');
+  for(const [name,count] of entries){const term=document.createElement('dt'),value=document.createElement('dd');term.textContent=name;value.textContent=count;list.append(term,value);}content.append(heading,list);
+ }
+ function counts(getKey){const result=new Map();for(const p of pens){const key=getKey(p);result.set(key,(result.get(key)||0)+1);}return result;}
+ const countries=counts(numberCountry);table('Country',['German','Anglosphere','Italian','French','Asian','Swiss'].filter(n=>n!=='Swiss'||countries.has(n)).map(n=>[n,countries.get(n)||0]));
+ if(section==='fountain'){const styles=counts(p=>p.style==='Demon'?'Demonstrator':p.style);table('Style',['Classic','Stripe','Colored','Marble','Wood','Sterling Silver','Demonstrator','Modern Nib','Oriental','Holy'].map(n=>[n,styles.get(n)||0]));}
+ else table('Type',[...counts(p=>p.group)]);
+ table('Brand',[...counts(p=>brandOf(p)[0].replace(/\s*\([^)]*\)/g,''))]);
+ $('#numbers').showModal();
+}
+$('#number').onclick=showNumbers;
+$('#close-numbers').onclick=()=>$('#numbers').close();
+$('#numbers').addEventListener('click',e=>{if(e.target===$('#numbers')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
 render();

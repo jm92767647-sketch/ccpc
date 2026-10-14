@@ -10,16 +10,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="gallery.css?v=20261015b">
+<link rel="stylesheet" href="gallery.css?v=20261015c">
 <script defer src="data.js?v=20261014"></script>
 <script defer src="pen-art.js?v=20261014"></script>
 <script defer src="pen-renderer.js?v=20261014"></script>
-<script defer src="app.js?v=20261015b"></script>
+<script defer src="app.js?v=20261015c"></script>
 <script defer src="background.js?v=20261014"></script>
 </head>
 <body data-level="0">
 <div class="site-backdrop" aria-hidden="true"><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i></div>
 <header>
+<button id="number" aria-haspopup="dialog">Number</button>
 <div class="topbar"><h1>PEN COLLECTION</h1><nav aria-label="컬렉션"><button data-section="daily" aria-pressed="true">Multi Pen &amp; Pencil</button><span aria-hidden="true">/</span><button data-section="fountain" aria-pressed="false">Fountain Pen</button></nav></div>
 <nav id="classification" aria-label="만년필 분류" hidden><button data-sort="brand" aria-pressed="true">브랜드별</button><button data-sort="style" aria-pressed="false">스타일별</button></nav>
 </header>
@@ -29,6 +30,7 @@
 <div class="view-controls"><span id="position" aria-live="polite"></span><div id="levels" aria-label="보기 크기"><button data-level="0" aria-pressed="true">전체</button><button data-level="1" title="두 줄씩 보기" aria-pressed="false">크게</button><button data-level="2" aria-pressed="false">한 줄</button><button data-level="3" aria-pressed="false">한 개</button></div></div>
 <button id="next" aria-label="다음">→</button>
 </footer>
+<dialog id="numbers" aria-labelledby="number-title"><div class="number-heading"><h2 id="number-title">Number</h2><button id="close-numbers" aria-label="닫기">×</button></div><div id="number-content"></div></dialog>
 </body>
 </html>
 
