@@ -1,7 +1,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const mobile=matchMedia('(max-width:1000px)');
 const metrics=new Map(), memories={daily:{level:0,index:0,selected:null},fountain:{level:0,index:0,selected:null}};
-for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:art.posted?1:.85});
+for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:art.scale??(art.posted?1:.85)});
 const brands=[['그라폰 파버카스텔','GvFC'],['도미넌트 인더스트리','DI'],['페리스 휠 프레스','FWP'],['나미키(파이롯트)','NMK'],['나카야 (플래티넘)','NKY'],['파버카스텔','FC'],['디플로마트','DPL'],['몬테그라파','MG'],['까렌다쉬','CdA'],['레오나르도','LD'],['비스콘티','VS'],['트위스비','TWSBI'],['파이롯트','PLT'],['ST 듀퐁','STD'],['몽블랑','MB'],['펠리칸','PE'],['발트만','WD'],['라미','LAMY'],['파카','PK'],['워터맨','WM'],['오노토','ON'],['쉐퍼','SH'],['크로스','CR'],['오로라','AU'],['구오마스','OMAS'],['세일러','SL'],['카웨코','KW'],['나왈','NW'],['아스바인','ASV'],['제브라','ZB'],['유니','UNI'],['로트링','RT'],['펜텔','PNT']];
 function brandOf(p){return brands.find(([name])=>p.name.startsWith(name))||['',''];}
 function brandLabel(p){const name=brandOf(p)[0];return level===3?name:name.replace(/\s*\([^)]*\)/g,'');}
@@ -129,7 +129,8 @@ function fit(){
   const image=card.querySelector('.pen-image');if(image){
    const height=Math.max(1,art-16)*m.scale;
    image.style.height=height+'px';image.style.width=height*m.ratio+'px';
-   image.sizes=Math.ceil(height*m.ratio)+'px';
+   const source=image.querySelector('img'),data=window.PEN_ART[card.dataset.id];
+   if(source)source.sizes=Math.ceil(height*m.ratio*(data.sourceWidth||data.width)/data.width)+'px';
   }
  }
 }
