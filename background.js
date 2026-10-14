@@ -9,7 +9,7 @@ let width=0,height=0,frame=0,lastPaint=0;
 let glassCards=[],glassDirty=true,lastGlassPaint=0;
 function refreshGlass(){glassCards=[...document.querySelectorAll('#scene .pen')].map(element=>({element,rect:element.getBoundingClientRect()}));glassDirty=false;}
 function shineGlass(lights,now){
- if(now-lastGlassPaint<100&&!glassDirty)return;lastGlassPaint=now;
+ if(now-lastGlassPaint<(innerWidth<=1000?200:100)&&!glassDirty)return;lastGlassPaint=now;
  if(glassDirty)refreshGlass();
  if(document.body.dataset.level==='3')return;
  for(const {element,rect} of glassCards){
@@ -51,6 +51,6 @@ function paint(now){
  }
  shineGlass(lights,now);
 }
-function tick(now){if(document.hidden||calm.matches){frame=0;return;}if(now-lastPaint>=50){paint(now);lastPaint=now;}frame=requestAnimationFrame(tick);}
+function tick(now){if(document.hidden||calm.matches){frame=0;return;}if(now-lastPaint>=(innerWidth<=1000?100:50)){paint(now);lastPaint=now;}frame=requestAnimationFrame(tick);}
 function resume(){cancelAnimationFrame(frame);frame=0;paint(performance.now());if(!document.hidden&&!calm.matches)frame=requestAnimationFrame(tick);}
 if(context){backdrop.classList.add('canvas-background');window.addEventListener('resize',resize);document.addEventListener('visibilitychange',resume);if(calm.addEventListener)calm.addEventListener('change',resume);else calm.addListener(resume);resize();resume();}

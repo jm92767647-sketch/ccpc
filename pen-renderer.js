@@ -11,8 +11,9 @@ const PenRenderer=(()=>{
   image.loading=document.body.dataset.level==='3'?'eager':'lazy';
   image.decoding='async';
   image.sizes='32px';
-  image.srcset=art.previewPath+' '+art.previewWidth+'w, '+art.detailPath+' '+art.detailWidth+'w';
-  image.src=art.previewPath;
+  const level=Number(document.body.dataset.level);
+  image.srcset=level===0||level===3?'':art.previewPath+' '+art.previewWidth+'w, '+art.detailPath+' '+art.detailWidth+'w';
+  image.src=level===3?art.detailPath:art.previewPath;
   image.onload=()=>{slot.dataset.ready='true';};
   let retried=false;
   image.onerror=()=>{

@@ -6,8 +6,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 button:disabled{opacity:.2;cursor:default}[hidden]{display:none!important}
 button:focus-visible,#viewport:focus-visible{outline:1px solid #35698e;outline-offset:2px}
 header,main,footer{position:relative;z-index:1;min-width:0;min-height:0}
-header{padding:22px 16px 0;z-index:2}.topbar{min-height:48px;display:flex;align-items:center;gap:14px}
-#number{position:absolute;top:2px;right:16px;padding:3px 0;font-size:10px;font-weight:600}
+header{padding:0 16px;z-index:2}.topbar{min-height:48px;display:flex;align-items:center;gap:14px}
+#number{margin-left:auto;padding:5px 8px;min-height:30px;font-size:13px;font-weight:600;white-space:nowrap}
 #numbers{width:min(440px,calc(100vw - 28px));max-height:85dvh;overflow:auto;border:1px solid #ffffffd9;border-radius:12px;background:#f5f9ffed;color:#111;padding:20px;box-shadow:0 12px 60px #24384e35;backdrop-filter:blur(18px)}
 #numbers::backdrop{background:#24384e35;backdrop-filter:blur(4px)}
 .number-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}.number-heading h2{margin:0;font-size:20px}#close-numbers{font-size:24px;padding:0 5px}.number-total{font-size:14px;margin:12px 0 18px}#number-content h3{font-size:12px;margin:20px 0 8px}#number-content dl{display:grid;grid-template-columns:1fr auto;gap:8px 20px;font-size:12px;margin:0}#number-content dd{margin:0;font-variant-numeric:tabular-nums;font-weight:600}
@@ -39,7 +39,7 @@ footer{height:40px;display:flex;align-items:center;justify-content:center;color:
 #prev,#next{position:absolute;bottom:5px;z-index:5;width:42px;height:30px;font-size:23px;line-height:20px;border-radius:3px;background:#ffffff9c;backdrop-filter:blur(8px)}
 #prev{left:8px}#next{right:8px}
 @media(max-width:1000px){
- header{padding:22px 8px 0}#number{right:8px}.topbar{min-height:56px;gap:0 6px;flex-wrap:wrap;padding:5px 0;align-content:center}h1{font-size:14px;margin-right:2px}
+ header{padding:0 8px}.topbar{min-height:56px;gap:0 6px;flex-wrap:wrap;padding:5px 0;align-content:center}h1{font-size:14px;margin-right:2px}
  nav{gap:0}nav button{font-size:10px;padding:4px 5px;min-height:25px}
  #classification{height:25px}#classification button{font-size:10px;margin-right:14px}
  #scene{height:auto;display:flex;flex-direction:column;gap:42px}.display-row{display:block}
@@ -52,7 +52,7 @@ footer{height:40px;display:flex;align-items:center;justify-content:center;color:
  footer{background:#ffffff8c;backdrop-filter:blur(12px)}.view-controls,#levels{gap:4px}#levels button{padding:5px 7px}
  #prev{left:4px}#next{right:4px}
 }
-@media(max-width:480px){.topbar{display:block;min-height:59px}h1{height:23px;line-height:23px}.topbar nav{margin-left:-5px}}
+@media(max-width:480px){.topbar{display:grid;grid-template-columns:1fr auto;min-height:59px;align-items:center}h1{height:23px;line-height:23px;grid-column:1;grid-row:1}#number{grid-column:2;grid-row:1;min-height:28px;padding:2px 6px}.topbar nav{margin-left:-5px;grid-column:1/-1;grid-row:2}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 /* The mypens palette, with independently drifting gradient layers. */
