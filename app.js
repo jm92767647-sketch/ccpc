@@ -1,7 +1,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const mobile=matchMedia('(max-width:760px)');
 const metrics=new Map(), memories={daily:{level:0,index:0,selected:null},fountain:{level:0,index:0,selected:null}};
-for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:art.posted?1:.85});
+for(const [id,art] of Object.entries(window.PEN_ART||{}))metrics.set(Number(id),{ratio:art.width/art.height,scale:window.PEN_LENGTHS[id].scale});
 const brands=[['그라폰 파버카스텔','GvFC'],['도미넌트 인더스트리','DI'],['페리스 휠 프레스','FWP'],['나미키(파이롯트)','NMK'],['나카야 (플래티넘)','NKY'],['파버카스텔','FC'],['디플로마트','DPL'],['몬테그라파','MG'],['까렌다쉬','CdA'],['레오나르도','LD'],['비스콘티','VS'],['트위스비','TWSBI'],['파이롯트','PLT'],['ST 듀퐁','STD'],['몽블랑','MB'],['펠리칸','PE'],['발트만','WD'],['라미','LAMY'],['파카','PK'],['워터맨','WM'],['오노토','ON'],['쉐퍼','SH'],['크로스','CR'],['오로라','AU'],['구오마스','OMAS'],['세일러','SL'],['카웨코','KW'],['나왈','NW'],['아스바인','ASV'],['제브라','ZB'],['유니','UNI'],['로트링','RT'],['펜텔','PNT']];
 function brandOf(p){return brands.find(([name])=>p.name.startsWith(name))||['',''];}
 function displayName(p){
@@ -43,7 +43,7 @@ function select(id){
  remember();
 }
 function penCard(p,tag,span){
- const el=document.createElement('button');el.className='pen';el.dataset.id=p.id;el.title=p.name;el.setAttribute('aria-label',p.name);el.setAttribute('aria-pressed',String(selected===p.id));
+ const el=document.createElement('button');el.className='pen';el.dataset.id=p.id;el.dataset.state=window.PEN_LENGTHS[p.id].state;el.title=p.name;el.setAttribute('aria-label',p.name);el.setAttribute('aria-pressed',String(selected===p.id));
  if(selected===p.id)el.classList.add('selected');
  const heading=document.createElement('span');heading.className='tag';heading.textContent=level<=1&&tag==='Wood / Sterling Silver / Demonstrator'?'Wood / Silver / Demonstrator':tag;heading.title=tag;heading.dataset.span=span;
  const art=document.createElement('span');art.className='pen-art';
@@ -65,59 +65,64 @@ function makeRow(row){
 }
 function scheduleFit(){if(!fitFrame)fitFrame=requestAnimationFrame(()=>{fitFrame=0;fit();});}
 function cardMetric(card){return metrics.get(Number(card.dataset.id))||{ratio:.14,scale:1};}
-function rowWidth(cards,height,minWidth){
- return cards.reduce((n,c)=>{const m=cardMetric(c);return n+Math.max(minWidth,height*m.ratio*m.scale+6);},0)+Math.max(0,cards.length-1)*2;
+const labelCanvas=document.createElement('canvas'),labelContext=labelCanvas.getContext('2d');
+function preferredWidth(card){
+ const label=card.querySelector('.label'),css=getComputedStyle(label);
+ labelContext.font=css.font||css.fontSize+' '+css.fontFamily;
+ const width=labelContext.measureText(label.textContent).width;
+ return Math.max([56,64,84,180][level],Math.min(level===3?600:190,width/[4,4,3,2][level]+14));
 }
 function fit(){
  const rows=$$('.display-row');if(!rows.length)return;
  const availableHeight=viewport.clientHeight-8,availableWidth=viewport.clientWidth-12;
+ const gap=mobile.matches?8:level===0?7:9,tagHeight=level===3?0:mobile.matches?26:20;
+ scene.style.setProperty('--card-gap',gap+'px');scene.style.setProperty('--tag-height',tagHeight+'px');
+ scene.style.setProperty('--label-height','140px');
+ const labelHeight=()=>Math.ceil(Math.max(...$$('.label').map(label=>label.getBoundingClientRect().height)));
+ let art;
  if(mobile.matches){
-  const columns=[4,3,2,1][level];
-  const fullHeight=availableHeight-42;
-  const target=fullHeight*[.50,.67,.84,1][level];
-  const cardWidth=(availableWidth-(columns-1)*2)/columns;
-  let art=Math.max(30,target);
-  for(const card of $$('.pen')){const m=cardMetric(card);art=Math.min(art,(cardWidth-6)/(m.ratio*m.scale));}
-  scene.style.setProperty('--art-height',art+'px');scene.style.setProperty('--columns',columns);
+  const columns=[4,3,2,1][level];scene.style.setProperty('--columns',columns);
   for(const row of rows){
    const slots=row.querySelector('.slots');slots.style.width='';slots.style.gridTemplateColumns='';
    for(const card of slots.children){card.style.width='';card.style.setProperty('--tag-width','100%');}
   }
+  const labels=labelHeight(),cardWidth=(availableWidth-gap*(columns-1))/columns;
+  art=Math.max(24,(availableHeight-tagHeight-labels-4)*[.50,.67,.84,1][level]);
+  for(const card of $$('.pen')){const m=cardMetric(card);art=Math.min(art,(cardWidth-12)/(m.ratio*m.scale));}
+  scene.style.setProperty('--label-height',labels+'px');scene.style.setProperty('--rows','1');
  }else{
-  const rowCount=level===0?visualRows().length:level===1?2:1;
-  const rowHeight=(availableHeight-Math.max(0,rowCount-1)*2)/rowCount;
-  const label=level===0?26:level===1?32:level===2?38:42;
-  const tag=level===3?0:16;
-  let art=Math.max(30,rowHeight-label-tag-4);
-  if(level===0&&section==='daily')art*=.78;
-  if(level===2)art*=.86;
-  if(level===3){
-   scene.style.setProperty('--art-height',art+'px');
-   const slots=rows[0].querySelector('.slots'),card=slots.firstElementChild,m=cardMetric(card);
-   art=Math.min(art,(availableWidth-6)/(m.ratio*m.scale));
-   const width=Math.min(availableWidth,Math.max(350,art*m.ratio*m.scale+8));
-   slots.style.width=width+'px';slots.style.gridTemplateColumns='1fr';card.style.width='100%';
-  }else{
-   const minWidth=level===0?42:level===1?52:64;
-   for(const row of rows){
-    const cards=[...row.querySelector('.slots').children];
-    const minimum=Math.min(minWidth,(availableWidth-2*(cards.length-1))/cards.length);
-    let low=0,high=art;
-    for(let i=0;i<18;i++){const mid=(low+high)/2;if(rowWidth(cards,mid,minimum)>availableWidth+.01)high=mid;else low=mid;}
-    art=Math.min(art,low);
+  const count=level===0?visualRows().length:level===1?2:1;
+  const rowHeight=(availableHeight-8*(count-1))/count;
+  const plans=rows.map(row=>{
+   const slots=row.querySelector('.slots'),cards=[...slots.children],wanted=cards.map(preferredWidth);
+   const budget=availableWidth-gap*(cards.length-1),factor=Math.min(1,budget/wanted.reduce((n,w)=>n+w,0));
+   return{slots,cards,minimum:wanted.map(w=>w*factor)};
+  });
+  function applyWidths(height){
+   let fits=true;
+   for(const plan of plans){
+    const widths=plan.cards.map((card,i)=>{const m=cardMetric(card);return Math.max(plan.minimum[i],height*m.ratio*m.scale+12);});
+    const total=widths.reduce((n,w)=>n+w,0)+gap*(widths.length-1);
+    if(total>availableWidth+.5)fits=false;
+    plan.slots.style.width=total+'px';plan.slots.style.gridTemplateColumns=widths.map(w=>w+'px').join(' ');
+    plan.cards.forEach((card,i)=>{card.style.width='';const span=Number(card.querySelector('.tag').dataset.span);card.style.setProperty('--tag-width',widths.slice(i,i+span).reduce((n,w)=>n+w,0)+gap*(span-1)+'px');});
    }
-   for(const row of rows){
-    const slots=row.querySelector('.slots'),cards=[...slots.children];
-    const widths=cards.map(c=>{const m=cardMetric(c);return Math.max(Math.min(minWidth,(availableWidth-2*(cards.length-1))/cards.length),art*m.ratio*m.scale+6);});
-    slots.style.width=widths.reduce((n,w)=>n+w,0)+2*(cards.length-1)+'px';slots.style.gridTemplateColumns=widths.map(w=>w+'px').join(' ');
-    cards.forEach((card,i)=>{card.style.width='';const tag=card.querySelector('.tag'),span=Number(tag.dataset.span);card.style.setProperty('--tag-width',widths.slice(i,i+span).reduce((n,w)=>n+w,0)+2*(span-1)+'px');});
-   }
+   return fits;
   }
-  scene.style.setProperty('--art-height',Math.max(20,art)+'px');scene.style.setProperty('--rows',rowCount);
+  let low=0,high=Math.max(24,rowHeight-tagHeight-18);
+  if(level===0&&section==='daily')high*=.78;
+  if(level===2)high*=.86;
+  for(let i=0;i<16;i++){
+   const height=(low+high)/2,fits=applyWidths(height);
+   if(fits&&height+tagHeight+labelHeight()+4<=rowHeight)low=height;else high=height;
+  }
+  art=Math.max(16,low);applyWidths(art);
+  scene.style.setProperty('--label-height',labelHeight()+'px');scene.style.setProperty('--rows',count);
  }
+ scene.style.setProperty('--art-height',art+'px');
  for(const card of $$('.pen')){
   const m=cardMetric(card);card.style.setProperty('--length',m.scale);
-  const image=card.querySelector('.pen-image');if(image)image.sizes=Math.ceil(parseFloat(scene.style.getPropertyValue('--art-height'))*m.scale*m.ratio)+'px';
+  const image=card.querySelector('.pen-image');if(image)image.sizes=Math.ceil(art*m.scale*m.ratio)+'px';
  }
 }
 function render(){
