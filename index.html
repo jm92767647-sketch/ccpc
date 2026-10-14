@@ -1,12 +1,35 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MY PEN COLLECTION</title><meta name="description" content="멀티펜, 샤프와 만년필. 나의 펜 컬렉션."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23edf8ff'/%3E%3Cpath d='M16 4 24 21 16 28 8 21Z' fill='%232f6489'/%3E%3Cpath d='M16 12v16' stroke='%23edf8ff'/%3E%3Ccircle cx='16' cy='13' r='2' fill='%23edf8ff'/%3E%3C/svg%3E"><link rel="stylesheet" href="collection.css?v=3"><script defer src="data.js"></script><script defer src="pen-renderer.js"></script><script defer src="app.js?v=3"></script><link rel="stylesheet" href="collection-background.css?v=3"></head>
-<body><div class="ambient-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-<header><a class="wordmark" href="#daily">MY PEN COLLECTION</a><nav aria-label="컬렉션"><button data-section="daily" aria-pressed="true">멀티펜 + 샤프</button><button data-section="fountain" aria-pressed="false">만년필</button></nav><span id="chapter">01 / 02</span></header>
-<main><button id="up" class="chapter-arrow up" aria-label="윗페이지" disabled><span></span></button><div class="heading"><p id="eyebrow">01 — EVERYDAY WRITING</p><h1 id="title">Multi Pen & Pencil</h1><div id="classification" hidden><span>분류</span><button data-sort="brand" aria-pressed="true">브랜드별</button><button data-sort="style" aria-pressed="false">스타일별</button></div><p class="collection-count" id="count"></p></div>
-<section id="viewport" aria-label="펜 컬렉션"><div id="board" class="board"></div><div id="empty" hidden>표시할 펜이 없습니다.</div></section>
-<div class="browse"><button id="previous" aria-label="이전 펜">←</button><span id="range" aria-live="polite"></span><button id="next" aria-label="다음 펜">→</button></div>
-<aside class="view-controls" aria-label="보기 방식"><div class="modes"><button data-mode="single">1개씩 보기</button><button data-mode="row">한줄 보기</button><button data-mode="double">2줄 보기</button><button data-mode="all" aria-pressed="true">전체 보기</button></div><span class="wheel-hint">휠로 확대 · 축소</span></aside>
-<button id="down" class="chapter-arrow down" aria-label="밑페이지"><span></span></button><div id="supplies" class="supplies">볼펜 · 멀티펜 · 샤프</div></main>
-</body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fdfdff">
+<title>PEN COLLECTION</title>
+<meta name="description" content="Multi Pen & Pencil / Fountain Pen">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23edf8ff'/%3E%3Cpath d='M16 4 24 21 16 28 8 21Z' fill='%232f6489'/%3E%3Cpath d='M16 12v16' stroke='%23edf8ff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gallery.css?v=20261014">
+<script defer src="data.js"></script>
+<script defer src="pen-art.js?v=20261014"></script>
+<script defer src="pen-renderer.js"></script>
+<script defer src="app.js?v=20261014"></script>
+<script defer src="background.js?v=20261014"></script>
+</head>
+<body data-level="0">
+<div class="site-backdrop" aria-hidden="true"><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i><i class="color-cloud"></i></div>
+<header>
+<div class="topbar"><h1>PEN COLLECTION</h1><nav aria-label="컬렉션"><button data-section="daily" aria-pressed="true">Multi Pen &amp; Pencil</button><span aria-hidden="true">/</span><button data-section="fountain" aria-pressed="false">Fountain Pen</button></nav></div>
+<nav id="classification" aria-label="만년필 분류" hidden><button data-sort="brand" aria-pressed="true">브랜드별</button><button data-sort="style" aria-pressed="false">스타일별</button></nav>
+</header>
+<main><section id="viewport" tabindex="0" aria-label="펜 컬렉션"><div id="scene"></div></section></main>
+<footer>
+<button id="prev" aria-label="이전">←</button>
+<div class="view-controls"><span id="position" aria-live="polite"></span><div id="levels" aria-label="보기 크기"><button data-level="0" aria-pressed="true">전체</button><button data-level="1" title="두 줄씩 보기" aria-pressed="false">크게</button><button data-level="2" aria-pressed="false">한 줄</button><button data-level="3" aria-pressed="false">한 개</button></div></div>
+<button id="next" aria-label="다음">→</button>
+</footer>
+</body>
+</html>
 
 

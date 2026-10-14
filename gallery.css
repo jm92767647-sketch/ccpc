@@ -1,0 +1,130 @@
+:root{font-family:'Instrument Sans','Malgun Gothic',Arial,sans-serif;color:#0a0a0a;background:#fdfdff;font-synthesis:none}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) 40px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:disabled{opacity:.2;cursor:default}
+[hidden]{display:none!important}
+button:focus-visible,#viewport:focus-visible{outline:1px solid #35698e;outline-offset:2px}
+header,main,footer{position:relative;z-index:1;min-width:0;min-height:0}
+header{padding:0 16px;z-index:2}
+.topbar{min-height:48px;display:flex;align-items:center;gap:14px}
+h1{font-size:19px;line-height:1.2;font-weight:600;letter-spacing:.04em;margin:0;white-space:nowrap}
+nav{display:flex;align-items:center;gap:5px}
+nav button{font-size:11px;padding:6px 9px;min-height:30px;white-space:nowrap;opacity:.45;transition:opacity .2s}
+nav button:hover{opacity:.75}
+nav button[aria-pressed=true]{opacity:1;font-weight:700}
+nav>span{font-size:10px;opacity:.25}
+#classification{height:27px;gap:7px;justify-content:flex-start}
+#classification button{min-height:25px;padding:3px 0;margin-right:14px}
+#viewport{height:100%;width:100%;padding:4px 6px;overflow:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#546a7930 transparent;touch-action:pan-y;overscroll-behavior:contain}
+#scene{--art-height:160px;--columns:4;--rows:4;height:100%;display:grid;grid-template-rows:repeat(var(--rows),minmax(0,1fr));gap:2px}
+.display-row{min-width:0;min-height:0;display:grid;align-items:center;justify-items:center}
+.slots{display:grid;gap:2px;align-items:end;min-width:0;max-width:100%;justify-content:center}
+.pen{position:relative;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:16px var(--art-height) 26px;gap:0;padding:0 2px;text-align:center;border-radius:5px;user-select:none;-webkit-user-select:none;isolation:isolate}
+.tag{grid-area:1/1}.pen-art{grid-area:2/1}.label{grid-area:3/1}
+.tag{height:16px;line-height:9px;font-size:8px;font-weight:600;text-align:left;width:var(--tag-width,100%);white-space:normal;overflow:hidden;position:relative;z-index:2;pointer-events:none}
+.pen-art{width:100%;height:100%;min-height:0;display:flex;align-items:flex-end;justify-content:center;position:relative;pointer-events:none}
+.pen-image{height:calc(var(--art-height)*var(--length,.85));width:auto;max-width:100%;object-fit:contain;object-position:center bottom;display:block}
+.label{font-size:8px;line-height:10px;font-weight:400;padding-top:3px;position:relative;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pen.selected .label{font-weight:600}
+body[data-level="1"] .pen{grid-template-rows:16px var(--art-height) 32px}
+body[data-level="1"] .label{font-size:10px;line-height:13px}
+body[data-level="1"] .tag{font-size:10px;line-height:12px}
+body[data-level="2"] .pen{grid-template-rows:16px var(--art-height) 38px}
+body[data-level="2"] .label{font-size:11px;line-height:15px}
+body[data-level="2"] .tag{font-size:11px;line-height:14px}
+body[data-level="3"] #scene{grid-template-rows:minmax(0,1fr)}
+body[data-level="3"] .pen{grid-template-rows:0 var(--art-height) 42px;padding:0}
+body[data-level="3"] .tag{display:none}
+body[data-level="3"] .label{font-family:'Instrument Serif','Malgun Gothic',serif;font-size:17px;line-height:21px;padding-top:4px;font-weight:400;overflow-wrap:normal}
+.image-error{font-size:10px;align-items:center}
+footer{height:40px;display:flex;align-items:center;justify-content:center;color:#0a0a0a}
+.view-controls,#levels{display:flex;align-items:center;gap:10px}
+#levels button{font-size:10px;padding:5px 10px;opacity:.45;white-space:nowrap}
+#levels button:hover{opacity:.75}
+#levels button[aria-pressed=true]{opacity:1;border-bottom:1px solid currentColor}
+#position{font-size:9px;opacity:.6;font-variant-numeric:tabular-nums;min-width:32px;text-align:center}
+#prev,#next{position:absolute;bottom:5px;z-index:5;width:42px;height:30px;font-size:23px;line-height:20px;border-radius:3px;background:#ffffff9c;backdrop-filter:blur(8px)}
+#prev{left:8px}#next{right:8px}
+@media(max-width:760px){
+ header{padding:0 8px}
+ .topbar{min-height:56px;gap:0 6px;flex-wrap:wrap;padding:5px 0;align-content:center}
+ h1{font-size:14px;margin-right:2px}
+ nav{gap:0}
+ nav button{font-size:10px;padding:4px 5px;min-height:25px}
+ #classification{height:25px}
+ #classification button{font-size:10px;margin-right:14px}
+ #viewport{padding:4px 6px}
+ #scene{height:auto;display:flex;flex-direction:column;gap:6px}
+ .display-row{display:block}
+ .slots{width:100%!important;display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr))!important;gap:4px 2px}
+ .pen{grid-template-rows:24px var(--art-height) 30px;padding:0 2px}
+ .tag{font-size:8px;line-height:10px;height:24px;width:100%;white-space:normal;overflow-wrap:anywhere;overflow:hidden}
+ .label{font-size:8px;line-height:10px;padding-top:3px;-webkit-line-clamp:2}
+ body[data-level="1"] .pen{grid-template-rows:24px var(--art-height) 34px}
+ body[data-level="1"] .tag{font-size:9px;line-height:11px}
+ body[data-level="1"] .label{font-size:9px;line-height:12px}
+ body[data-level="2"] .pen{grid-template-rows:26px var(--art-height) 38px}
+ body[data-level="2"] .tag{font-size:10px;line-height:12px;height:26px}
+ body[data-level="2"] .label{font-size:11px;line-height:15px}
+ body[data-level="3"] #scene{height:100%;display:grid}
+ body[data-level="3"] .pen{grid-template-rows:0 var(--art-height) 42px}
+ body[data-level="3"] .label{font-size:15px;line-height:19px}
+ footer{background:#ffffff8c;backdrop-filter:blur(12px)}
+ .view-controls,#levels{gap:4px}
+ #levels button{padding:5px 7px}
+ #prev{left:4px}#next{right:4px}
+}
+@media(max-width:480px){.topbar{display:block;min-height:59px}h1{height:23px;line-height:23px}.topbar nav{margin-left:-5px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* The mypens palette, with independently drifting gradient layers. */
+html,body{background:#fdfdff!important;color:#0a0a0a}
+.site-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#fdfdff;isolation:isolate}
+.color-cloud{position:absolute;inset:-100%;display:block;will-change:transform}
+.color-cloud:nth-child(1){background:radial-gradient(ellipse 40vw 30dvh at 50% 50%,#cddff9,transparent);transform:translate(50vw,50dvh)}
+.color-cloud:nth-child(2){background:radial-gradient(ellipse 44vw 50dvh at 50% 50%,#e8e2fc,transparent);transform:translate(40vw,28dvh)}
+.color-cloud:nth-child(3){background:radial-gradient(ellipse 45vw 45dvh at 50% 50%,#cdeae9,transparent);transform:translate(-50vw,50dvh)}
+.color-cloud:nth-child(4){background:radial-gradient(ellipse 33vw 48dvh at 50% 50%,#deebfc,transparent);transform:translate(-50vw,0)}
+.color-cloud:nth-child(5){background:radial-gradient(ellipse 50vw 65dvh at 50% 50%,#cde8ef,transparent);transform:translate(50vw,-50dvh)}
+.color-cloud:nth-child(6){background:radial-gradient(ellipse 32vw 30dvh at 50% 50%,#f6f3fe,transparent);transform:translate(0,-50dvh)}
+.color-cloud:nth-child(7){background:radial-gradient(ellipse 42vw 48dvh at 50% 50%,#d8eeec,transparent);transform:translate(-50vw,-50dvh)}
+@media(prefers-reduced-motion:reduce){.color-cloud{will-change:auto}}
+
+/* Keep the lavender peak visible above the other pastel layers. */
+.color-cloud:nth-child(2){z-index:1;transform:translate(28vw,28dvh);opacity:1}
+
+/* One viewport-sized canvas avoids oversized animated GPU layers on phones. */
+.canvas-background .color-cloud{display:none;will-change:auto}
+.ambient-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* Optical glass is painted inside the existing cards: no layout space or image size is lost. */
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen{border-radius:5px}
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen::before{
+ content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+ background:radial-gradient(ellipse at 50% 52%,#e4f4ff13,transparent 68%),linear-gradient(125deg,#ffffff24,#90abc508 42%,#d9edff0c 76%,#ffffff28);
+ box-shadow:inset 0 0 0 .5px #ffffffa6,inset 0 1px 2px #ffffffb8,inset 0 -1px 2px #ecf8ff70,inset 2px 0 6px #b7dfff18,inset -2px 0 6px #b7dfff18,0 2px 4px #233d501a;
+}
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen>.pen-art,
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen>.label{position:relative}
+
+/* Bright specular reflections follow the glass perimeter without covering the dial. */
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen::after{
+ content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+ background:radial-gradient(ellipse at 0 0,#fff 0%,#ffffffed 8%,transparent 42%),radial-gradient(ellipse at 100% 100%,#fff 0%,#e4faffef 10%,transparent 44%),radial-gradient(ellipse at 100% 0,#ffffffd9,transparent 36%),linear-gradient(135deg,#ffffffed 0%,#ffffffa8 23%,#b3d8eb40 44%,#ffffffc9 72%,#fff 100%);
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+ filter:drop-shadow(0 0 1px #ffffffc4);
+}
+
+/* The moving ambient lights illuminate each pane in screen order. */
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen::after{
+ padding:3px;
+ background:radial-gradient(ellipse at var(--glass-x,20%) var(--glass-y,0%),#fff 0%,#ffffffeb 18%,#e7f9ff8c 42%,transparent 72%),linear-gradient(135deg,#ffffffed 0%,#eaf8ffad 28%,#ffffff78 48%,#e3f5ffad 72%,#fff 100%);
+ opacity:calc(.72 + var(--glass-light,0)*.28);
+ filter:none;
+}
+body:is([data-level="0"],[data-level="1"],[data-level="2"]) .pen::before{
+ background:radial-gradient(ellipse 100% 18% at var(--glass-x,20%) var(--glass-y,0%),rgb(255 255 255 / calc(.08 + var(--glass-light,0)*.48)),transparent 80%),linear-gradient(125deg,#ffffff24,#90abc508 42%,#d9edff0c 76%,#ffffff28);
+ box-shadow:inset 0 0 0 .5px #ffffffed,inset 0 1px 1px #fff,inset 0 0 3px rgb(255 255 255 / calc(.45 + var(--glass-light,0)*.5)),inset 0 0 0 2px rgb(232 247 255 / calc(.14 + var(--glass-light,0)*.18)),0 0 2px #ffffffad,0 2px 4px #233d501a;
+}
