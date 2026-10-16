@@ -35,7 +35,7 @@ function visualRows(){
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t)};
 const camera={t:1,x:0,y:0},target={t:1,x:0,y:0};
-let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes('헤밍'))?.id||11,frame=0,numberByCount=false,clearance=95;
+let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes('뒤마'))?.id||12,frame=0,numberByCount=false,clearance=95,opening=true;
 const pointers=new Map();let gesture=null,lastTap=0,resizeTimer;
 function geometry(t){
  const narrow=W<=760,n=Math.max(...rows.map(r=>r.pens.length)),ratio=Math.max(...items.map(i=>i.art.width/i.art.height*i.art.scale));
@@ -51,7 +51,10 @@ function geometry(t){
  const baseY=narrow?fullHeight+52:H/Math.max(1,rows.length),midY=narrow?twoHeight+64:Math.max(twoHeight+76,H*.46);
  const rowPitch=t<=.4?baseY+(midY-baseY)*smooth(0,.4,t):midY+(h+100-midY)*grow;
  const isolatedY=Math.max(H*.57+h/2+38,H*.43+h/2+60)+12;
- const pitchY=Math.max(h+clearance,rowPitch+(isolatedY-rowPitch)*close);
+ const verticalClose=Math.max(close,smooth(W/5,W/3,pitchX));
+ const spacedY=Math.max(h+clearance,rowPitch+(isolatedY-rowPitch)*verticalClose);
+ const compact=narrow&&section==='fountain'?smooth(W/4,W/3.4,pitchX):1;
+ const pitchY=(h+20)+(spacedY-h-20)*compact;
  return{h,pitchX,pitchY,narrow};
 }
 function point(i,g){return{x:W/2+i.col*g.pitchX,y:H/2+i.row*g.pitchY};}
@@ -112,6 +115,7 @@ function build(keep=true){
  if(section==='fountain'&&sort==='brand')rows.forEach((row,r)=>{const el=document.createElement('span');el.className='country-marker';el.textContent=row.name==='Italian + French'?'Italian (+ French)':row.name;scene.append(el);rowMarkers.push({el,row:r-(rows.length-1)/2})});
  if(!items.some(i=>i.p.id===lockedId))lockedId=items[0].p.id;
  if(!keep)target.t=1;
+ if(opening){let low=0,high=1;for(let n=0;n<24;n++){const mid=(low+high)/2;if(geometry(mid).pitchX<W/3)low=mid;else high=mid;}target.t=(low+high)/2;opening=false;}
  focus(target);bound(target);Object.assign(camera,target);
  $('#classification').hidden=section!=='fountain';
  $$('[data-section]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.section===section)));
@@ -144,7 +148,7 @@ function release(e){
  pointers.delete(e.pointerId);gesture=null;viewport.classList.remove('dragging');
 }
 viewport.addEventListener('pointerup',release);viewport.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);gesture=null;viewport.classList.remove('dragging')});
-$$('[data-section]').forEach(b=>b.onclick=()=>{if(section===b.dataset.section)return;section=b.dataset.section;lockedId=section==='fountain'?(PENS.find(p=>p.name.includes('헤밍'))?.id||11):PENS.find(p=>p.section==='daily').id;history.replaceState(null,'','#'+section);build();});
+$$('[data-section]').forEach(b=>b.onclick=()=>{if(section===b.dataset.section)return;section=b.dataset.section;lockedId=section==='fountain'?(PENS.find(p=>p.name.includes('뒤마'))?.id||12):PENS.find(p=>p.section==='daily').id;history.replaceState(null,'','#'+section);build();});
 $$('[data-sort]').forEach(b=>b.onclick=()=>{sort=b.dataset.sort;build();});
 document.addEventListener('keydown',e=>{
  if($('#numbers').open||e.ctrlKey||e.altKey||e.metaKey)return;
