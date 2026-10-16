@@ -39,14 +39,10 @@ let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes
 const pointers=new Map();let gesture=null,lastTap=0,resizeTimer;
 function geometry(t){
  const narrow=W<=760,n=Math.max(...rows.map(r=>r.pens.length)),ratio=Math.max(...items.map(i=>i.art.width/i.art.height*i.art.scale));
- if(section==='daily'){
-  const maxH=Math.min(H*.4,(H-220)/2),h=maxH*(.58+.42*smooth(0,1,t));
-  const pitchX=narrow?(W-24)/n+((W-24)/3-(W-24)/n)*smooth(0,1,t):(W-28)/n;
-  const pitchY=Math.max(h+clearance,H*.5);
-  return{h,pitchX,pitchY,narrow};
- }
- const fullPitch=(W-28)/n,twoHeight=Math.min(H*.34,(fullPitch-7)/ratio),maxHeight=H*(narrow?.72:.76);
- const fullHeight=Math.min((H-rows.length*90)/rows.length,twoHeight*.62);
+ const fullPitch=(W-28)/n,maxHeight=H*(narrow?.72:.76);
+ const dailyFloor=narrow?Math.min(H*.36,(fullPitch-10)/ratio):Math.min(H*.4,(H-220)/2);
+ const twoHeight=section==='daily'?Math.min(maxHeight,dailyFloor*1.12):Math.min(H*.34,(fullPitch-7)/ratio);
+ const fullHeight=section==='daily'?dailyFloor:Math.min((H-rows.length*90)/rows.length,twoHeight*.62);
  const h=t<=.4?fullHeight+(twoHeight-fullHeight)*smooth(0,.4,t):twoHeight+(maxHeight-twoHeight)*smooth(.4,.86,t);
  const close=smooth(.83,1,t),grow=smooth(.43,.86,t);
  const pitch=Math.max(h*ratio+8,fullPitch+(Math.max(72,h*ratio+28)-fullPitch)*grow);
@@ -60,7 +56,6 @@ function geometry(t){
 }
 function point(i,g){return{x:W/2+i.col*g.pitchX,y:H/2+i.row*g.pitchY};}
 function focus(c){const i=items.find(i=>i.p.id===lockedId);if(!i||c.t===0)return;const g=geometry(c.t),p=point(i,g);c.x=W/2-p.x;
- if(section==='daily'){c.x=W>760?0:c.x;c.y=-20*smooth(.5,1,c.t);return;}
  const pair=Math.floor((i.row+(rows.length-1)/2)/2)*2+.5-(rows.length-1)/2;
  const pairY=-pair*g.pitchY,singleY=H*.43-p.y;
  c.y=W>760?pairY+(singleY-pairY)*smooth(.45,.82,c.t):singleY;
@@ -77,7 +72,7 @@ function draw(){
  frame=0;const moving=Math.abs(camera.t-target.t)+Math.abs(camera.x-target.x)/100+Math.abs(camera.y-target.y)/100>.001;
  for(const k of ['t','x','y'])camera[k]+=(target[k]-camera[k])*.22;
  if(!moving)Object.assign(camera,target);
- const g=geometry(camera.t),near=section==='fountain'&&camera.t>.97,showNames=!g.narrow||g.pitchX>=W/3.4,showInfo=showNames&&(section==='daily'?camera.t>.6:camera.t>.64),quality=camera.t>.62?'detail':'preview';
+ const g=geometry(camera.t),near=camera.t>.97,showNames=!g.narrow||g.pitchX>=W/3.4,showInfo=showNames&&(section==='daily'?camera.t>.6:camera.t>.64),quality=camera.t>.62?'detail':'preview';
  let needed=60;
  scene.dataset.zoom=camera.t.toFixed(4);scene.dataset.center=String(lockedId??'');
  for(const i of items){
@@ -172,7 +167,7 @@ function numberContent(){
  const styles=['Classic','Stripe','Colored','Marble','Wood','Sterling Silver','Demonstrator','Modern Nib','Oriental','Holy'];
  const sections=[['나라별',counts(numberCountry)],...(section==='fountain'?[['스타일별',counts(p=>p.style==='Demon'?'Demonstrator':p.style).sort((a,b)=>styles.indexOf(a[0])-styles.indexOf(b[0]))]]:[['종류별',counts(p=>p.group)]]),['브랜드별',counts(p=>brandOf(p)[0].replace(/\s*\([^)]*\)/g,''))]];
  $('#number-total').textContent=(section==='fountain'?'Fountain Pen':'Pen & Pencil')+' · '+pens.length+'개';
- $('#number-sort').textContent=numberByCount?'위치별':'갯수별';$('#number-sort').setAttribute('aria-pressed',String(numberByCount));
+ $('#number-sort').textContent=numberByCount?'위치 순':'개수 순';$('#number-sort').setAttribute('aria-pressed',String(numberByCount));
  for(const [title,original] of sections){const entries=numberByCount?[...original].sort((a,b)=>b[1]-a[1]):original;
   const s=document.createElement('section');s.className='number-section';const h=document.createElement('h3');h.textContent=title;const ul=document.createElement('ul');
   for(const [name,n] of entries){const li=document.createElement('li'),span=document.createElement('span');span.textContent=name;li.append(span);if(n>1){const strong=document.createElement('strong');strong.textContent=n;li.append(strong)}ul.append(li)}s.append(h,ul);content.append(s);
