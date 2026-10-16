@@ -5,7 +5,14 @@ function brandLabel(p){const name=brandOf(p)[0];return level===3?name:name.repla
 function displayName(p){
  if(level===3)return p.name;
  const [brand,short]=brandOf(p);
- const model=p.name.slice(brand.length).trim().replace(/\([^)]*\)/g,'').replace(/고급진 멀티펜|얇은 바디\/특이 색감/g,'').replace(/\s+/g,' ').trim();
+ let model=p.name.slice(brand.length).trim().replace(/\([^)]*\)/g,'').replace(/고급진 멀티펜|얇은 바디\/특이 색감/g,'').replace(/\s+/g,' ').trim();
+ if(p.id===28)model=model.replace(/(14k).*/i,'$1');
+ if(p.id===33)model=model.replace(/(브론즈에이지).*/,'$1');
+ if(p.id===19)model=model.replace(/(AMARE).*/i,'$1');
+ if(p.id===20)model=model.replace(/(580).*/,'$1');
+ if(p.id===36)model=model.replace(/(캡리스).*/,'$1');
+ if(p.id===50)model=model.replace(/(뮤\s*701).*/,'$1');
+ if(p.id===42)model=model.replace(/21k닙\s*/i,'');
  return level<=1?model:(short?short+' ':'')+model;
 }
 let section=location.hash==='#daily'?'daily':'fountain',sort='brand',level=0;
@@ -28,25 +35,32 @@ function visualRows(){
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t)};
 const camera={t:1,x:0,y:0},target={t:1,x:0,y:0};
-let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes('헤밍'))?.id||11,frame=0,numberByCount=false;
+let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes('헤밍'))?.id||11,frame=0,numberByCount=false,clearance=95;
 const pointers=new Map();let gesture=null,lastTap=0,resizeTimer;
 function geometry(t){
  const narrow=W<=760,n=Math.max(...rows.map(r=>r.pens.length)),ratio=Math.max(...items.map(i=>i.art.width/i.art.height*i.art.scale));
+ if(section==='daily'){
+  const maxH=Math.min(H*.4,(H-220)/2),h=maxH*(.58+.42*smooth(0,1,t));
+  const pitchX=narrow?(W-24)/n+((W-24)/3-(W-24)/n)*smooth(0,1,t):(W-28)/n;
+  const pitchY=Math.max(h+clearance,H*.5);
+  return{h,pitchX,pitchY,narrow};
+ }
  const fullPitch=(W-28)/n,twoHeight=Math.min(H*.34,(fullPitch-7)/ratio),maxHeight=H*(narrow?.72:.76);
  const fullHeight=Math.min((H-rows.length*90)/rows.length,twoHeight*.62);
  const h=t<=.4?fullHeight+(twoHeight-fullHeight)*smooth(0,.4,t):twoHeight+(maxHeight-twoHeight)*smooth(.4,.86,t);
  const close=smooth(.83,1,t),grow=smooth(.43,.86,t);
- const pitch=fullPitch+(Math.max(72,h*ratio+28)-fullPitch)*grow;
+ const pitch=Math.max(h*ratio+8,fullPitch+(Math.max(72,h*ratio+28)-fullPitch)*grow);
  const isolatedX=W/2+Math.min(W-28,450)/2+14;
  const pitchX=pitch+(isolatedX-pitch)*close;
  const baseY=narrow?fullHeight+52:H/Math.max(1,rows.length),midY=narrow?twoHeight+64:Math.max(twoHeight+76,H*.46);
  const rowPitch=t<=.4?baseY+(midY-baseY)*smooth(0,.4,t):midY+(h+100-midY)*grow;
  const isolatedY=Math.max(H*.57+h/2+38,H*.43+h/2+60)+12;
- const pitchY=rowPitch+(isolatedY-rowPitch)*close;
+ const pitchY=Math.max(h+clearance,rowPitch+(isolatedY-rowPitch)*close);
  return{h,pitchX,pitchY,narrow};
 }
 function point(i,g){return{x:W/2+i.col*g.pitchX,y:H/2+i.row*g.pitchY};}
 function focus(c){const i=items.find(i=>i.p.id===lockedId);if(!i||c.t===0)return;const g=geometry(c.t),p=point(i,g);c.x=W/2-p.x;
+ if(section==='daily'){c.x=W>760?0:c.x;c.y=-20*smooth(.5,1,c.t);return;}
  const pair=Math.floor((i.row+(rows.length-1)/2)/2)*2+.5-(rows.length-1)/2;
  const pairY=-pair*g.pitchY,singleY=H*.43-p.y;
  c.y=W>760?pairY+(singleY-pairY)*smooth(.45,.82,c.t):singleY;
@@ -63,37 +77,42 @@ function draw(){
  frame=0;const moving=Math.abs(camera.t-target.t)+Math.abs(camera.x-target.x)/100+Math.abs(camera.y-target.y)/100>.001;
  for(const k of ['t','x','y'])camera[k]+=(target[k]-camera[k])*.22;
  if(!moving)Object.assign(camera,target);
- const g=geometry(camera.t),near=camera.t>.82,quality=camera.t>.62?'detail':'preview';
+ const g=geometry(camera.t),near=section==='fountain'&&camera.t>.97,showNames=!g.narrow||g.pitchX>=W/3.4,showInfo=showNames&&(section==='daily'?camera.t>.6:camera.t>.64),quality=camera.t>.62?'detail':'preview';
+ let needed=60;
  scene.dataset.zoom=camera.t.toFixed(4);scene.dataset.center=String(lockedId??'');
  for(const i of items){
-  const p=point(i,g),h=g.h*i.art.scale,w=h*i.art.width/i.art.height,cardWidth=Math.max(w+12,Math.min(g.pitchX-7,near?Math.min(W-28,450):220));
+  const p=point(i,g),h=g.h*i.art.scale,w=h*i.art.width/i.art.height,cardWidth=Math.max(16,Math.min(g.pitchX-7,near?Math.min(W-28,450):220));
   const x=p.x+camera.x,y=p.y+camera.y-g.h/2;
   const visible=x+cardWidth/2>0&&x-cardWidth/2<W&&y+g.h+60>0&&y-38<H;
   i.el.hidden=!visible;if(!visible)continue;
   i.el.style.cssText=`left:${x-cardWidth/2}px;top:${y}px;width:${cardWidth}px;height:${g.h+60}px`;
   i.photo.style.cssText=`width:${w}px;height:${h}px;left:${(cardWidth-w)/2}px;top:0`;
-  i.label.style.cssText=`top:${g.h+10}px;font-size:${near?15:clamp(7+camera.t*6,7,12)}px;line-height:1.35`;
+  i.caption.style.cssText=`top:${g.h+10}px;font-size:${near?15:clamp(7+camera.t*6,7,12)}px;line-height:1.35;display:${showNames?'block':'none'}`;
   level=near?3:camera.t>.35?2:0;
-  i.label.textContent=displayName(i.p);i.tag.textContent=near?brandLabel(i.p):i.heading;
+  i.label.textContent=displayName(i.p);i.tag.textContent=showInfo?'':i.heading;
+  i.tag.hidden=!showNames;
+  i.info.hidden=!showInfo;i.info.textContent=section==='daily'?i.p.group:[numberCountry(i.p),brandOf(i.p)[0].replace(/\s*\([^)]*\)/g,''),i.p.style==='Demon'?'Demonstrator':i.p.style].join(' · ');
   i.tag.style.cssText=`bottom:calc(100% + 7px);font-size:${near?11:clamp(8+camera.t*4,8,11)}px;text-align:${near?'center':'left'}`;
   i.el.setAttribute('aria-current',String(i.p.id===lockedId));
   const src=i.art[quality+'Path'];if(i.img.dataset.quality!==quality){i.img.src=src;i.img.dataset.quality=quality;}
+  needed=Math.max(needed,i.caption.getBoundingClientRect().height+i.tag.getBoundingClientRect().height+30+(!showInfo&&section==='fountain'&&sort==='brand'?22:0));
  }
- for(const m of rowMarkers){const i=items.find(i=>i.row===m.row),p=point(i,g);m.el.hidden=near;m.el.style.cssText=`left:${p.x+camera.x-g.pitchX/2+4}px;top:${p.y+camera.y-g.h/2-43}px;font-size:${clamp(8+camera.t*4,8,11)}px`;}
- const hint=$('#gesture-hint');hint.style.opacity=camera.t>.1?'.6':'.35';
+ if(needed>clearance+1){clearance=needed;focus(target);bound(target);wake();}
+ for(const m of rowMarkers){const rowItems=items.filter(i=>i.row===m.row),i=rowItems[0],p=point(i,g),font=clamp(8+camera.t*4,8,11),tagHeight=Math.max(...rowItems.map(i=>i.tag.getBoundingClientRect().height));m.el.hidden=showInfo||!showNames;m.el.style.cssText=`left:${p.x+camera.x-g.pitchX/2+4}px;top:${p.y+camera.y-g.h/2-tagHeight-14-font*1.3}px;font-size:${font}px;line-height:1.3`;}
+ const hint=$('#gesture-hint');hint.style.opacity=camera.t>.6?'0':'.35';
  if(moving)wake();
 }
 function build(keep=true){
- W=viewport.clientWidth;H=viewport.clientHeight;rows=visualRows();scene.replaceChildren();items=[];rowMarkers=[];
+ W=viewport.clientWidth;H=viewport.clientHeight;rows=visualRows();scene.replaceChildren();items=[];rowMarkers=[];clearance=95;
  rows.forEach((row,r)=>{let prev='';row.pens.forEach((p,c)=>{
   const art=window.PEN_ART[p.id],brand=brandOf(p)[0].replace(/\s*\([^)]*\)/g,''),group=row.groups.find(g=>g.pens.some(x=>x.id===p.id));
   const heading=section==='fountain'&&sort==='brand'?(brand!==prev?brand:''):(group.pens[0].id===p.id?group.name:'');prev=brand;
   const el=document.createElement('article');el.className='explore-pen';el.dataset.id=p.id;el.setAttribute('aria-label',p.name);el.tabIndex=0;
   const tag=document.createElement('span');tag.className='explore-tag';const photo=document.createElement('span');photo.className='pen-image';
   const img=new Image();img.className='pen-source';img.alt=p.name;img.draggable=false;img.decoding='async';img.style.cssText='width:100%;height:100%;left:0;top:0';photo.append(img);
-  const label=document.createElement('span');label.className='explore-label';el.append(tag,photo,label);scene.append(el);
+  const caption=document.createElement('span');caption.className='explore-caption';const label=document.createElement('span');label.className='explore-label';const info=document.createElement('span');info.className='pen-info';caption.append(label,info);el.append(tag,photo,caption);scene.append(el);
   el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){lockedId=p.id;focus(target);wake();e.preventDefault()}};
-  items.push({p,art,el,photo,img,label,tag,heading,col:c-(row.pens.length-1)/2,row:r-(rows.length-1)/2});
+  items.push({p,art,el,photo,img,label,tag,caption,info,heading,col:c-(row.pens.length-1)/2,row:r-(rows.length-1)/2});
  });});
  if(section==='fountain'&&sort==='brand')rows.forEach((row,r)=>{const el=document.createElement('span');el.className='country-marker';el.textContent=row.name==='Italian + French'?'Italian (+ French)':row.name;scene.append(el);rowMarkers.push({el,row:r-(rows.length-1)/2})});
  if(!items.some(i=>i.p.id===lockedId))lockedId=items[0].p.id;
@@ -105,6 +124,7 @@ function build(keep=true){
  wake();
 }
 function setZoom(t){
+ clearance=95;
  if(lockedId===null){const g=geometry(target.t);lockedId=[...items].sort((a,b)=>{const p=point(a,g),q=point(b,g);return Math.hypot(p.x+target.x-W/2,p.y+target.y-H*.43)-Math.hypot(q.x+target.x-W/2,q.y+target.y-H*.43)})[0]?.p.id??null;}
  const next=clamp(t,0,1);
  // Keep a deliberate, reachable full-width two-row view on desktop.
@@ -151,7 +171,7 @@ function numberContent(){
  const counts=f=>{const m=new Map();for(const p of pens){const k=f(p);m.set(k,(m.get(k)||0)+1)}return[...m]};
  const styles=['Classic','Stripe','Colored','Marble','Wood','Sterling Silver','Demonstrator','Modern Nib','Oriental','Holy'];
  const sections=[['나라별',counts(numberCountry)],...(section==='fountain'?[['스타일별',counts(p=>p.style==='Demon'?'Demonstrator':p.style).sort((a,b)=>styles.indexOf(a[0])-styles.indexOf(b[0]))]]:[['종류별',counts(p=>p.group)]]),['브랜드별',counts(p=>brandOf(p)[0].replace(/\s*\([^)]*\)/g,''))]];
- $('#number-total').textContent=(section==='fountain'?'Fountain Pen':'Multi Pen & Pencil')+' · '+pens.length+'개';
+ $('#number-total').textContent=(section==='fountain'?'Fountain Pen':'Pen & Pencil')+' · '+pens.length+'개';
  $('#number-sort').textContent=numberByCount?'위치별':'갯수별';$('#number-sort').setAttribute('aria-pressed',String(numberByCount));
  for(const [title,original] of sections){const entries=numberByCount?[...original].sort((a,b)=>b[1]-a[1]):original;
   const s=document.createElement('section');s.className='number-section';const h=document.createElement('h3');h.textContent=title;const ul=document.createElement('ul');
