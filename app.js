@@ -35,7 +35,7 @@ function visualRows(){
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t)};
 const camera={t:1,x:0,y:0},target={t:1,x:0,y:0};
-let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes('뒤마'))?.id||12,frame=0,numberByCount=false,clearance=95,classificationGap=28,opening=true;
+let items=[],rows=[],rowMarkers=[],W=0,H=0,lockedId=PENS.find(p=>p.name.includes('뒤마'))?.id||12,frame=0,numberByCount=false,clearance=95,opening=true;
 const pointers=new Map();let gesture=null,lastTap=0,resizeTimer;
 function geometry(t){
  const narrow=W<=760,n=Math.max(...rows.map(r=>r.pens.length)),ratio=Math.max(...items.map(i=>i.art.width/i.art.height*i.art.scale));
@@ -54,7 +54,7 @@ function geometry(t){
  const verticalClose=Math.max(close,smooth(W/5,W/3,pitchX));
  const spacedY=Math.max(h+clearance,rowPitch+(isolatedY-rowPitch)*verticalClose);
  const compact=narrow&&section==='fountain'?smooth(W/4,W/3.4,pitchX):1;
- const pitchY=(h+classificationGap)+(spacedY-h-classificationGap)*compact;
+ const pitchY=(h+20)+(spacedY-h-20)*compact;
  return{h,pitchX,pitchY,narrow};
 }
 function point(i,g){return{x:W/2+i.col*g.pitchX,y:H/2+i.row*g.pitchY};}
@@ -76,7 +76,8 @@ function draw(){
  for(const k of ['t','x','y'])camera[k]+=(target[k]-camera[k])*.22;
  if(!moving)Object.assign(camera,target);
  const g=geometry(camera.t),near=camera.t>.97,showNames=!g.narrow||g.pitchX>=W/3.4,showInfo=showNames&&(section==='daily'?camera.t>.6:camera.t>.64),quality=camera.t>.62?'detail':'preview';
- let needed=60,headerNeeded=28;
+ const brandView=section==='fountain'&&sort==='brand',showBrands=!brandView||camera.t>.16;
+ let needed=60;
  scene.dataset.zoom=camera.t.toFixed(4);scene.dataset.center=String(lockedId??'');
  for(const i of items){
   const p=point(i,g),h=g.h*i.art.scale,w=h*i.art.width/i.art.height,cardWidth=Math.max(16,Math.min(g.pitchX-7,near?Math.min(W-28,450):220));
@@ -87,23 +88,23 @@ function draw(){
   i.photo.style.cssText=`width:${w}px;height:${h}px;left:${(cardWidth-w)/2}px;top:0`;
   i.caption.style.cssText=`top:${g.h+10}px;font-size:${near?15:clamp(7+camera.t*6,7,12)}px;line-height:1.35;display:${showNames?'block':'none'}`;
   level=near?3:camera.t>.35?2:0;
-  i.label.textContent=displayName(i.p);i.tag.textContent=showInfo?'':i.heading;
+  i.label.textContent=displayName(i.p);i.tag.textContent=showInfo||!showBrands?'':i.heading.replace('Demonstrator','Demon');
   i.tag.hidden=false;
-  i.info.hidden=!showInfo;i.info.textContent=section==='daily'?i.p.group:[numberCountry(i.p),brandOf(i.p)[0].replace(/\s*\([^)]*\)/g,''),i.p.style==='Demon'?'Demonstrator':i.p.style].join(' · ');
+  i.info.hidden=!showInfo;i.info.textContent=section==='daily'?i.p.group:[numberCountry(i.p),brandOf(i.p)[0].replace(/\s*\([^)]*\)/g,''),i.p.style].join(' · ');
   i.tag.style.cssText=`bottom:calc(100% + 7px);width:${!showNames?g.pitchX*i.headingSpan-2:cardWidth}px;font-size:${!showNames?7:near?11:clamp(8+camera.t*4,8,11)}px;text-align:${near?'center':'left'}`;
+  i.tag.style.whiteSpace='nowrap';
+  if(i.tag.textContent){const range=document.createRange();range.selectNodeContents(i.tag);const width=range.getBoundingClientRect().width;if(width>i.tag.clientWidth)i.tag.style.fontSize=parseFloat(i.tag.style.fontSize)*i.tag.clientWidth/width+'px';}
   i.el.setAttribute('aria-current',String(i.p.id===lockedId));
   const src=i.art[quality+'Path'];if(i.img.dataset.quality!==quality){i.img.src=src;i.img.dataset.quality=quality;}
   needed=Math.max(needed,i.caption.getBoundingClientRect().height+i.tag.getBoundingClientRect().height+30+(!showInfo&&section==='fountain'&&sort==='brand'?22:0));
-  headerNeeded=Math.max(headerNeeded,i.tag.getBoundingClientRect().height+14+(!showInfo&&section==='fountain'&&sort==='brand'?28:0));
  }
- if(headerNeeded>classificationGap+1){classificationGap=headerNeeded;focus(target);bound(target);wake();}
  if(needed>clearance+1){clearance=needed;focus(target);bound(target);wake();}
- for(const m of rowMarkers){const rowItems=items.filter(i=>i.row===m.row),i=rowItems[0],p=point(i,g),font=clamp(8+camera.t*4,8,11),tagHeight=Math.max(...rowItems.map(i=>i.tag.getBoundingClientRect().height));m.el.hidden=showInfo;m.el.style.cssText=`left:${p.x+camera.x-g.pitchX/2+4}px;top:${p.y+camera.y-g.h/2-tagHeight-14-font*1.3}px;font-size:${font}px;line-height:1.3`;}
+ for(const m of rowMarkers){const rowItems=items.filter(i=>i.row===m.row),i=rowItems[0],p=point(i,g),font=clamp(8+camera.t*4,8,11),tagHeight=Math.max(...rowItems.map(i=>i.tag.getBoundingClientRect().height));m.el.hidden=showInfo||(g.narrow&&showBrands);m.el.style.cssText=`left:${p.x+camera.x-g.pitchX/2+4}px;top:${p.y+camera.y-g.h/2-(showBrands?tagHeight+14+font*1.3:17)}px;font-size:${font}px;line-height:1.3`;}
  const hint=$('#gesture-hint');hint.style.opacity=camera.t>.6?'0':'.35';
  if(moving)wake();
 }
 function build(keep=true){
- W=viewport.clientWidth;H=viewport.clientHeight;rows=visualRows();scene.replaceChildren();items=[];rowMarkers=[];clearance=95;classificationGap=28;
+ W=viewport.clientWidth;H=viewport.clientHeight;rows=visualRows();scene.replaceChildren();items=[];rowMarkers=[];clearance=95;
  rows.forEach((row,r)=>{let prev='';row.pens.forEach((p,c)=>{
   const art=window.PEN_ART[p.id],brand=brandOf(p)[0].replace(/\s*\([^)]*\)/g,''),group=row.groups.find(g=>g.pens.some(x=>x.id===p.id));
   const heading=section==='fountain'&&sort==='brand'?(brand!==prev?brand:''):(group.pens[0].id===p.id?group.name:'');prev=brand;
@@ -171,8 +172,8 @@ function numberCountry(p){
 function numberContent(){
  const pens=PENS.filter(p=>p.section===section).sort((a,b)=>a.order-b.order),content=$('#number-content');content.replaceChildren();
  const counts=f=>{const m=new Map();for(const p of pens){const k=f(p);m.set(k,(m.get(k)||0)+1)}return[...m]};
- const styles=['Classic','Stripe','Colored','Marble','Wood','Sterling Silver','Demonstrator','Modern Nib','Oriental','Holy'];
- const sections=[['나라별',counts(numberCountry)],...(section==='fountain'?[['스타일별',counts(p=>p.style==='Demon'?'Demonstrator':p.style).sort((a,b)=>styles.indexOf(a[0])-styles.indexOf(b[0]))]]:[['종류별',counts(p=>p.group)]]),['브랜드별',counts(p=>brandOf(p)[0].replace(/\s*\([^)]*\)/g,''))]];
+ const styles=['Classic','Stripe','Colored','Marble','Wood','Sterling Silver','Demon','Modern Nib','Oriental','Holy'];
+ const sections=[['나라별',counts(numberCountry)],...(section==='fountain'?[['스타일별',counts(p=>p.style).sort((a,b)=>styles.indexOf(a[0])-styles.indexOf(b[0]))]]:[['종류별',counts(p=>p.group)]]),['브랜드별',counts(p=>brandOf(p)[0].replace(/\s*\([^)]*\)/g,''))]];
  $('#number-total').textContent=(section==='fountain'?'Fountain Pen':'Pen & Pencil')+' · '+pens.length+'개';
  $('#number-sort').textContent=numberByCount?'위치 순':'개수 순';$('#number-sort').setAttribute('aria-pressed',String(numberByCount));
  for(const [title,original] of sections){const entries=numberByCount?[...original].sort((a,b)=>b[1]-a[1]):original;
