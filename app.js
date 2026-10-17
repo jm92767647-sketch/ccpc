@@ -1,9 +1,9 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const brands=[['그라폰 파버카스텔','GvFC'],['도미넌트 인더스트리','DI'],['페리스 휠 프레스','FWP'],['나미키(파이롯트)','NMK'],['나카야 (플래티넘)','NKY'],['파버카스텔','FC'],['디플로마트','DPL'],['몬테그라파','MG'],['까렌다쉬','CdA'],['레오나르도','LD'],['비스콘티','VS'],['트위스비','TWSBI'],['파이롯트','PLT'],['ST 듀퐁','STD'],['몽블랑','MB'],['펠리칸','PE'],['발트만','WD'],['라미','LAMY'],['파카','PK'],['워터맨','WM'],['오노토','ON'],['쉐퍼','SH'],['크로스','CR'],['오로라','AU'],['구오마스','OMAS'],['세일러','SL'],['카웨코','KW'],['나왈','NW'],['아스바인','ASV'],['제브라','ZB'],['유니','UNI'],['로트링','RT'],['펜텔','PNT']];
+const brands=[["그라폰 파버카스텔","GvFC","Graf von Faber-Castell"],["도미넌트 인더스트리","DI","Dominant Industry"],["페리스 휠 프레스","FWP","Ferris Wheel Press"],["나미키(파이롯트)","NMK","Namiki"],["나카야 (플래티넘)","NKY","Nakaya"],["파버카스텔","FC","Faber-Castell"],["디플로마트","DPL","Diplomat"],["몬테그라파","MG","Montegrappa"],["까렌다쉬","CdA","Caran d’Ache"],["레오나르도","LD","Leonardo Officina Italiana"],["비스콘티","VS","Visconti"],["트위스비","TWSBI","TWSBI"],["파이롯트","PLT","Pilot"],["ST 듀퐁","STD","S.T. Dupont"],["몽블랑","MB","Montblanc"],["펠리칸","PE","Pelikan"],["발트만","WD","Waldmann"],["라미","LAMY","LAMY"],["파카","PK","Parker"],["워터맨","WM","Waterman"],["오노토","ON","Onoto"],["쉐퍼","SH","Sheaffer"],["크로스","CR","Cross"],["오로라","AU","Aurora"],["구오마스","OMAS","OMAS"],["세일러","SL","Sailor"],["카웨코","KW","Kaweco"],["나왈","NW","Nahvalur"],["아스바인","ASV","Asvine"],["제브라","ZB","ZEBRA"],["유니","UNI","uni"],["로트링","RT","rOtring"],["펜텔","PNT","Pentel"]];
 function brandOf(p){return brands.find(([name])=>p.name.startsWith(name))||['',''];}
 function brandLabel(p){const name=brandOf(p)[0];return level===3?name:name.replace(/\s*\([^)]*\)/g,'');}
-function displayName(p){
- if(level===3)return p.name;
+function displayName(p,viewLevel=level){
+ if(viewLevel===3)return p.name;
  const [brand,short]=brandOf(p);
  let model=p.name.slice(brand.length).trim().replace(/\([^)]*\)/g,'').replace(/고급진 멀티펜|얇은 바디\/특이 색감/g,'').replace(/\s+/g,' ').trim();
  if(p.id===28)model=model.replace(/(14k).*/i,'$1');
@@ -13,7 +13,7 @@ function displayName(p){
  if(p.id===36)model=model.replace(/(캡리스).*/,'$1');
  if(p.id===50)model=model.replace(/(뮤\s*701).*/,'$1');
  if(p.id===42)model=model.replace(/21k닙\s*/i,'');
- return level<=1?model:(short?short+' ':'')+model;
+ return viewLevel<=1?model:(short?short+' ':'')+model;
 }
 let section=location.hash==='#daily'?'daily':'fountain',sort='brand',level=0;
 const scene=$('#scene'),viewport=$('#viewport');
@@ -175,13 +175,13 @@ function numberContent(){
  const styles=['Classic','Stripe','Colored','Marble','Wood','Sterling Silver','Demon','Modern Nib','Oriental','Holy'];
  const sections=[['나라별',counts(numberCountry)],...(section==='fountain'?[['스타일별',counts(p=>p.style).sort((a,b)=>styles.indexOf(a[0])-styles.indexOf(b[0]))]]:[['종류별',counts(p=>p.group)]]),['브랜드별',counts(p=>brandOf(p)[0].replace(/\s*\([^)]*\)/g,''))]];
  $('#number-total').textContent=(section==='fountain'?'Fountain Pen':'Pen & Pencil')+' · '+pens.length+'개';
- $('#number-sort').textContent=numberByCount?'위치 순':'개수 순';$('#number-sort').setAttribute('aria-pressed',String(numberByCount));
  for(const [title,original] of sections){const entries=numberByCount?[...original].sort((a,b)=>b[1]-a[1]):original;
   const s=document.createElement('section');s.className='number-section';const h=document.createElement('h3');h.textContent=title;const ul=document.createElement('ul');
   for(const [name,n] of entries){const li=document.createElement('li'),span=document.createElement('span');span.textContent=name;li.append(span);if(n>1){const strong=document.createElement('strong');strong.textContent=n;li.append(strong)}ul.append(li)}s.append(h,ul);content.append(s);
  }
+ document.dispatchEvent(new Event('pen:number-rendered'));
 }
-$('#number').onclick=()=>{numberByCount=false;numberContent();$('#numbers').showModal()};$('#number-sort').onclick=()=>{numberByCount=!numberByCount;numberContent()};$('#close-numbers').onclick=()=>$('#numbers').close();
+$('#number').onclick=()=>{numberByCount=false;numberContent();$('#numbers').showModal()};$('#close-numbers').onclick=()=>$('#numbers').close();
 $('#numbers').addEventListener('click',e=>{if(e.target===$('#numbers')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#numbers').close()}});
 new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>build(),80)}).observe(viewport);
 document.fonts.ready.then(()=>build());build();

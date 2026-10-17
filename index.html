@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111820">
+<meta name="theme-color" content="#fdfdfd">
 <title>PEN COLLECTION</title>
 <meta name="description" content="Pen & Pencil / Fountain Pen">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23edf8ff'/%3E%3Cpath d='M16 4 24 21 16 28 8 21Z' fill='%232f6489'/%3E%3Cpath d='M16 12v16' stroke='%23edf8ff'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="gallery.css?v=compactlabels20261017">
-<script defer src="data.js?v=compactlabels20261017"></script>
-<script defer src="pen-art.js?v=compactlabels20261017"></script>
-<script defer src="pen-renderer.js?v=compactlabels20261017"></script>
-<script defer src="app.js?v=compactlabels20261017"></script>
-<script defer src="background.js?v=compactlabels20261017"></script>
+<link rel="stylesheet" href="gallery.css?v=catalog20261018">
+<script defer src="data.js?v=catalog20261018"></script>
+<script defer src="pen-art.js?v=catalog20261018"></script>
+<script defer src="pen-renderer.js?v=catalog20261018"></script>
+<script defer src="app.js?v=catalog20261018"></script>
+<link rel="stylesheet" href="catalog.css?v=catalog20261018">
+<script defer src="catalog.js?v=catalog20261018"></script>
 </head>
-<body data-level="0">
-<div class="site-backdrop" aria-hidden="true"><video id="background-video" autoplay muted loop playsinline preload="metadata" poster="https://jm92767647-sketch.github.io/watch/backgrounds/mux-poster.webp"><source media="(max-width:760px)" src="https://jm92767647-sketch.github.io/watch/backgrounds/mux-pingpong-720.mp4" type="video/mp4"><source src="https://jm92767647-sketch.github.io/watch/backgrounds/mux-pingpong-1080.mp4" type="video/mp4"></video></div>
-<header><h1>PEN COLLECTION</h1><div class="collection-controls"><nav aria-label="컬렉션"><button data-section="daily" aria-pressed="false">Pen &amp; Pencil</button><span aria-hidden="true">/</span><button data-section="fountain" aria-pressed="true">Fountain Pen</button></nav><nav id="classification" aria-label="만년필 분류"><button data-sort="brand" aria-pressed="true">브랜드별</button><button data-sort="style" aria-pressed="false">스타일별</button></nav></div><button id="number" aria-haspopup="dialog">NUMBER</button></header>
-<main><p id="gesture-hint">휠 · 두 손가락으로 확대/축소 · 드래그로 이동</p><section id="viewport" tabindex="0" aria-label="펜 컬렉션"><div id="scene"></div></section></main>
+<body data-level="0" data-presentation="list">
+<header><h1>PEN COLLECTION<span id="collection-count"></span></h1><div class="view-switch" role="group" aria-label="보기 방식"><button data-presentation-button="list" aria-pressed="true">목록</button><button data-presentation-button="free" aria-pressed="false">자유</button></div><div class="collection-controls"><nav aria-label="컬렉션"><button data-section="daily" aria-pressed="false">Pen &amp; Pencil</button><span aria-hidden="true">/</span><button data-section="fountain" aria-pressed="true">Fountain Pen</button></nav><nav id="classification" aria-label="만년필 분류"><button data-sort="brand" aria-pressed="true">브랜드별</button><button data-sort="style" aria-pressed="false">스타일별</button></nav></div><button id="number" aria-haspopup="dialog">NUMBER</button></header>
+<main><p id="gesture-hint">휠 · 두 손가락으로 확대/축소 · 드래그로 이동</p><section id="viewport" tabindex="0" aria-label="펜 컬렉션"><div id="scene"></div></section><section id="catalog-pane" aria-label="펜 목록"></section></main>
 
-<dialog id="numbers" aria-labelledby="number-title"><div class="dialog-head"><div class="number-heading"><h2 id="number-title">NUMBER</h2><button id="number-sort" aria-pressed="false">개수 순</button></div><button id="close-numbers" aria-label="닫기">×</button></div><p id="number-total"></p><div id="number-content"></div></dialog>
+<dialog id="numbers" aria-labelledby="number-title"><div class="dialog-head"><div class="number-heading"><h2 id="number-title">NUMBER</h2><div id="number-order" class="number-order-switch" data-order="position" role="group" aria-label="통계 정렬"><button data-number-order="count" aria-pressed="false">개수 순</button><button data-number-order="position" aria-pressed="true">위치 순</button></div></div><button id="close-numbers" aria-label="닫기">×</button></div><p id="number-total"></p><div id="number-content"></div></dialog>
 </body>
 </html>
 
