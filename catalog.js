@@ -19,6 +19,7 @@
   const x=Math.max(0,b[0]-pad)*sx,y=Math.max(0,b[1]-pad)*sy,right=Math.min(a.sourceWidth||a.width,b[2]+pad)*sx,bottom=Math.min(a.sourceHeight||a.height,b[3]+pad)*sy;
   return `<svg viewBox="${x} ${y} ${right-x} ${bottom-y}" role="img" aria-label="${esc(p.name)} 전체 사진"><image width="${a.width}" height="${a.height}" preserveAspectRatio="none" href="${esc(a.detailPath)}"/></svg>`;
  }
+ function catalogClassification(p){const brand=brandOf(p),country=p.group==='Italian + French'?(p.name.startsWith('ST 듀퐁')?'French':'Italian'):p.group;return p.section==='fountain'?[country,brand[2]||brand[0],p.style].filter(Boolean).join(' · '):(brand[2]||brand[0]);}
  function render(){
   updateCount();pane.dataset.catalogSection=section;pane.dataset.catalogSort=sort;
   const entries=groups(),group=entries.find(g=>g.key===groupKey);
@@ -28,7 +29,7 @@
    pane.innerHTML=`<div class="catalog-directory">${section==='daily'||sort==='style'?column(entries):column(entries.slice(0,split))+column(entries.slice(split))}</div>`;
    pane.scrollTop=lastDirectoryScroll;
   }else{
-   pane.innerHTML=`<div class="catalog-group-head"><button id="catalog-back" aria-label="목록으로 뒤로가기"><svg viewBox="0 0 32 24" fill="none" aria-hidden="true"><path d="M30 12H3M13 2 3 12l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h2>${esc(group.label)}</h2><span>${group.pens.length}</span></div><div class="catalog-products-area"><div class="catalog-products">${group.pens.map(p=>`<article class="catalog-card" data-pen="${p.id}"><div class="catalog-photo">${photo(p)}</div><div class="catalog-caption"><span>${esc(brandOf(p)[2]||brandOf(p)[0])}</span><h3>${esc(displayName(p,group.pens.length===1?3:0))}</h3></div></article>`).join('')}</div></div>`;
+   pane.innerHTML=`<div class="catalog-group-head"><button id="catalog-back" aria-label="목록으로 뒤로가기"><svg viewBox="0 0 32 24" fill="none" aria-hidden="true"><path d="M30 12H3M13 2 3 12l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h2>${esc(group.label)}</h2><span>${group.pens.length}</span></div><div class="catalog-products-area"><div class="catalog-products">${group.pens.map(p=>`<article class="catalog-card" data-pen="${p.id}"><div class="catalog-photo">${photo(p)}</div><div class="catalog-caption"><span>${esc(catalogClassification(p))}</span><h3>${esc(displayName(p,group.pens.length===1?3:0))}</h3></div></article>`).join('')}</div></div>`;
    pane.scrollTop=0;fit();
   }
  }
