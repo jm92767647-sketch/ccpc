@@ -7,11 +7,12 @@ header,header h1,header button,header button:hover{color:#22282d;text-shadow:non
 .pen-info,#gesture-hint{color:#59616a;text-shadow:none}
 button:focus-visible,article:focus-visible,#viewport:focus-visible{outline-color:#4a565f}
 .view-switch,.number-order-switch{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(2,1fr);flex:none;padding:3px;border-radius:8px;background:#646464}
-.view-switch{width:104px;height:30px}
+.view-switch{width:104px;height:30px;background:#cbc4be}
 .view-switch::before,.number-order-switch::before{content:'';position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);background:#fff;border-radius:5px;transform:translateX(0);transition:transform 260ms cubic-bezier(.22,.7,.2,1);z-index:-1}
 body[data-presentation=free] .view-switch::before,.number-order-switch[data-order=position]::before{transform:translateX(100%)}
 header .view-switch button,.number-order-switch button{font-size:11px;min-height:0;padding:0;border:0;background:none;opacity:1;text-decoration:none;white-space:nowrap;font-weight:400;color:#fff}
 header .view-switch button[aria-pressed=true]{font-weight:600;color:#22282d}
+header .view-switch button{color:#22282d}
 body[data-presentation=list] #viewport{visibility:hidden;opacity:0;pointer-events:none}
 body[data-presentation=list] #gesture-hint{visibility:hidden}
 body[data-presentation=free] #catalog-pane{display:none}
@@ -39,6 +40,7 @@ body[data-presentation=free] #catalog-pane{display:none}
 .number-section li{white-space:nowrap;break-inside:avoid;max-width:none}.number-section li span{white-space:nowrap;overflow-wrap:normal}
 #numbers{background:#f9f9f9f5;color:#22282d;border-color:#c5c3c1}.number-heading{min-width:0}
 @media(min-width:761px) and (max-width:1000px){header{gap:6px}.view-switch{width:82px}}
+@media(min-width:761px){#catalog-pane[data-catalog-section=daily] .catalog-directory,#catalog-pane[data-catalog-sort=style] .catalog-directory{grid-template-columns:minmax(0,1fr);width:66.6667%}}
 @media(max-width:760px){
  header{height:79px;min-height:79px;max-height:79px;display:grid;grid-template-columns:minmax(0,1fr) 64px 40px;grid-template-rows:30px 30px;gap:5px 4px;padding:7px 8px;align-content:center}
  header h1{grid-column:1;grid-row:1;margin:0}.view-switch{grid-column:2;grid-row:1;width:64px;height:28px}.view-switch button{font-size:10px!important}

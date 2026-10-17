@@ -7,7 +7,8 @@
   const result=new Map();
   for(const row of visualRows())for(const group of row.groups)for(const p of group.pens){
    const brand=brandOf(p),key=section==='daily'?p.group:sort==='brand'?(brand[0]||p.brand||p.name.split(' ')[0]):p.style;
-   if(!result.has(key))result.set(key,{key,label:section==='fountain'&&sort==='brand'?(brand[2]||key):key==='Demon'?'Demon':key,country:p.group,pens:[]});
+   const country=p.group==='Italian + French'?(p.name.startsWith('ST 듀퐁')?'French':'Italian'):p.group;
+   if(!result.has(key))result.set(key,{key,label:section==='fountain'&&sort==='brand'?(brand[2]||key):key==='Demon'?'Demon':key,country,pens:[]});
    result.get(key).pens.push(p);
   }
   return [...result.values()];
@@ -24,7 +25,7 @@
   if(!group){
    groupKey=null;const split=Math.ceil(entries.length/2);
    function column(gs){let previous='';return `<div class="catalog-column">${gs.map(g=>{let heading='';if(section==='fountain'&&sort==='brand'&&g.country!==previous){heading=`<p class="catalog-country">${esc(g.country==='Italian + French'?'Italian (+ French)':g.country)}</p>`;previous=g.country;}return `${heading}<button class="catalog-entry" data-catalog-group="${esc(g.key)}">${esc(g.label)}</button>`}).join('')}</div>`;}
-   pane.innerHTML=`<div class="catalog-directory">${column(entries.slice(0,split))}${column(entries.slice(split))}</div>`;
+   pane.innerHTML=`<div class="catalog-directory">${section==='daily'||sort==='style'?column(entries):column(entries.slice(0,split))+column(entries.slice(split))}</div>`;
    pane.scrollTop=lastDirectoryScroll;
   }else{
    pane.innerHTML=`<div class="catalog-group-head"><button id="catalog-back" aria-label="목록으로 뒤로가기"><svg viewBox="0 0 32 24" fill="none" aria-hidden="true"><path d="M30 12H3M13 2 3 12l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h2>${esc(group.label)}</h2><span>${group.pens.length}</span></div><div class="catalog-products-area"><div class="catalog-products">${group.pens.map(p=>`<article class="catalog-card" data-pen="${p.id}"><div class="catalog-photo">${photo(p)}</div><div class="catalog-caption"><span>${esc(brandOf(p)[2]||brandOf(p)[0])}</span><h3>${esc(displayName(p,group.pens.length===1?3:0))}</h3></div></article>`).join('')}</div></div>`;
@@ -34,11 +35,11 @@
  function fit(){
   const grid=pane.querySelector('.catalog-products');if(!grid)return;
   if(innerWidth<=760){grid.style.cssText='';return;}
-  const n=grid.children.length,rows=n===1?1:2,cols=Math.ceil(n/rows),area=grid.parentElement;
+  const n=grid.children.length,rows=1,cols=n,area=grid.parentElement;
   const height=area.clientHeight,width=area.clientWidth;
   let art=Math.max(120,(height-rows*58-(rows-1)*8)/rows);
   for(let n=0;n<3;n++){
-   const card=Math.max(112,Math.min(rows===1?300:220,art*.35));
+   const card=Math.max(112,Math.min(grid.children.length===1?300:220,art*.25));
    grid.style.setProperty('--catalog-columns',cols);grid.style.setProperty('--catalog-card-width',card+'px');grid.style.setProperty('--catalog-art-height',art+'px');
    const caption=Math.max(...[...grid.querySelectorAll('.catalog-caption')].map(e=>e.getBoundingClientRect().height));
    art=Math.max(100,(height-rows*caption-(rows-1)*8)/rows);
