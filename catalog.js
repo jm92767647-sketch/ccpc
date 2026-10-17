@@ -39,7 +39,8 @@
   const height=area.clientHeight,width=area.clientWidth;
   let art=Math.max(120,(height-rows*58-(rows-1)*8)/rows);
   for(let n=0;n<3;n++){
-   const card=Math.max(112,Math.min(grid.children.length===1?300:220,art*.25));
+   const preferred=Math.max(112,Math.min(grid.children.length===1?300:220,art*.25));
+   const card=section==='fountain'&&sort==='style'&&groupKey.toLowerCase()==='marble'?Math.min(preferred,(width-(cols-1)*6)/cols):preferred;
    grid.style.setProperty('--catalog-columns',cols);grid.style.setProperty('--catalog-card-width',card+'px');grid.style.setProperty('--catalog-art-height',art+'px');
    const caption=Math.max(...[...grid.querySelectorAll('.catalog-caption')].map(e=>e.getBoundingClientRect().height));
    art=Math.max(100,(height-rows*caption-(rows-1)*8)/rows);
